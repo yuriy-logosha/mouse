@@ -1,4 +1,4 @@
-package com.home;
+package com.home.mouse.client;
 
 import java.awt.*;
 import java.io.*;

@@ -1,4 +1,4 @@
-package com.home;
+package com.home.mouse.client;
 
 import java.io.*;
 import java.net.InetAddress;

@@ -7,7 +7,11 @@
     <groupId>com.home</groupId>
     <artifactId>mouse</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
     <build>
+        <finalName>mouse</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -16,6 +20,44 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <classifier>server</classifier>
+                    <excludes>
+                        <exclude>**/client/*</exclude>
+                    </excludes>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.home.mouse.server.Mouse</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>command</classifier>
+                            <excludes>
+                                <exclude>**/server/*</exclude>
+                            </excludes>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.home.client.Command</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

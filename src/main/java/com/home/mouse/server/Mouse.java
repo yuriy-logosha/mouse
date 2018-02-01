@@ -1,4 +1,6 @@
-package com.home;
+package com.home.mouse.server;
+
+import com.home.mouse.server.MouseController;
 
 import java.awt.*;
 import java.awt.event.InputEvent;

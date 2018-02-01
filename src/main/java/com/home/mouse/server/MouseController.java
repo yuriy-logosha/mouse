@@ -1,4 +1,4 @@
-package com.home;
+package com.home.mouse.server;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -128,9 +128,31 @@ public class MouseController {
             ImageIO.write(capture, "png", new File(line.get(0)));
             System.out.println("File name: " + line.get(0));
             System.out.println("Picture size: " + capture.getHeight() + "x" + capture.getWidth());
-        } else if ("contains".equalsIgnoreCase(command)) {
+        } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)) {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
+            ImageIO.write(screenCapture, "png", new File("screen.png"));
+            Point point = contains(screenCapture, ImageIO.read(new File(line.get(0))));
+            if(point != null) {
+                System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
+                out.writeUTF( Math.round(point.getX()) + " " + Math.round(point.getY()));
+            } else {
+                System.out.println("Not found");
+                out.writeUTF( "Not found");
+            }
+        } else if ("containsInRange".equalsIgnoreCase(command)) {
+            int x = 0;
+            try {
+                x = Integer.valueOf(line.get(1));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+            int y = Integer.valueOf(line.get(2));
+            int x2 = Integer.valueOf(line.get(3));
+            int y2 = Integer.valueOf(line.get(4));
+
+            BufferedImage screenCapture = robot.createScreenCapture(
+                    new Rectangle(x, y, x2, y2));
             ImageIO.write(screenCapture, "png", new File("screen.png"));
             Point point = contains(screenCapture, ImageIO.read(new File(line.get(0))));
             if(point != null) {

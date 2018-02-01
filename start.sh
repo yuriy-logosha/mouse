@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-cd /Users/yura/IdeaProjects/mouse/target/classes
+java target/classes/com/home/Command exit
 
-java com/home/Command exit
-
-java com/home/Mouse -Dapple.awt.UIElement=true
+java target/classes/com/home/Mouse -Dapple.awt.UIElement=true
 
