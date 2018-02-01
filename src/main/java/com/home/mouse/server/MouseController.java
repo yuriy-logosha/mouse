@@ -156,8 +156,8 @@ public class MouseController {
             ImageIO.write(screenCapture, "png", new File("screen.png"));
             Point point = contains(screenCapture, ImageIO.read(new File(line.get(0))));
             if(point != null) {
-                System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
-                out.writeUTF( Math.round(point.getX()) + " " + Math.round(point.getY()));
+                System.out.println("Found: " + Math.round(point.getX() + x) + " " + Math.round(point.getY()) + y);
+                out.writeUTF( Math.round(point.getX()) + x + " " + Math.round(point.getY()) + y);
             } else {
                 System.out.println("Not found");
                 out.writeUTF( "Not found");
