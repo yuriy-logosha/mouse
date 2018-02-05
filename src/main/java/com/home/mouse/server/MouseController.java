@@ -191,14 +191,12 @@ public class MouseController {
     private Point contains(BufferedImage bigImage, BufferedImage subImage) {
         for (int hY = 0; hY <= bigImage.getHeight() - subImage.getHeight(); hY++) {
             for (int hX = 0; hX <= bigImage.getWidth() - subImage.getWidth(); hX++) {
-                int halfX = subImage.getWidth() / 2;
-                int halfY = subImage.getHeight() / 2;
-                int deviation = Math.abs(bigImage.getRGB(hX, hY)) - Math.abs(subImage.getRGB(0, 0));
+                int deviation = Math.abs(bigImage.getRGB(hX, hY) - subImage.getRGB(0, 0));
                 newCheck:
                 if (deviation <= 3 && deviation >= -3) {
                     for (int nY = 0; nY < subImage.getHeight(); nY++) {
                         for (int nX = 0; nX < subImage.getWidth(); nX++) {
-                            int deviation2 = Math.abs(bigImage.getRGB(hX + nX, hY + nY)) - Math.abs(subImage.getRGB(nX, nY));
+                            int deviation2 = Math.abs(bigImage.getRGB(hX + nX, hY + nY) - subImage.getRGB(nX, nY));
                             if (!(deviation2 >=-1 && deviation2 <= 1)) {
                                 break newCheck;
                             }
