@@ -98,8 +98,10 @@ public class MouseController {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
         } else if ("presskey".equalsIgnoreCase(command)) {
-            robot.keyPress(Integer.parseInt(line[0]));
-            robot.keyRelease(Integer.parseInt(line[0]));
+            for (String s : line) {
+                robot.keyPress(Integer.parseInt(s));
+                robot.keyRelease(Integer.parseInt(s));
+            }
         } else if ("sleep".equalsIgnoreCase(command)) {
             robot.delay(Integer.valueOf(line[0]));
 
