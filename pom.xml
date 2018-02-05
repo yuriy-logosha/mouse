@@ -52,7 +52,7 @@
                             </excludes>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.home.client.Command</mainClass>
+                                    <mainClass>com.home.mouse.client.Command</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
