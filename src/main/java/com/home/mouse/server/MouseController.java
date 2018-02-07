@@ -1,5 +1,7 @@
 package com.home.mouse.server;
 
+import com.home.mouse.server.proc.ImageProcessor;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -18,6 +20,7 @@ public class MouseController {
     boolean isExit = false;
     DataInputStream in;
     DataOutputStream out;
+    private int port = 6666;
 
     public MouseController(Robot robot) throws AWTException {
         this.robot = robot;
@@ -25,11 +28,11 @@ public class MouseController {
 
     public void start() {
         try {
-            ServerSocket ss = new ServerSocket(6666); // создаем сокет сервера и привязываем его к вышеуказанному порту
+            ServerSocket ss = new ServerSocket(port);
             System.out.println("Waiting for a command...");
 
             while (!isExit) {
-                Socket socket = ss.accept(); // заставляем сервер ждать подключений и выводим сообщение когда кто-то связался с сервером
+                Socket socket = ss.accept();
 
                 InputStream sin = socket.getInputStream();
                 OutputStream sout = socket.getOutputStream();
@@ -60,7 +63,7 @@ public class MouseController {
                 }
             }
         } catch (IOException x) {
-            System.out.println("Can not create listener on port 6666");
+            System.out.println("Can not create listener on port " + port);
             x.printStackTrace();
         }
 
@@ -132,8 +135,19 @@ public class MouseController {
         } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)) {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
-            ImageIO.write(screenCapture, "png", new File("screen.png"));
-            Point point = contains(screenCapture, ImageIO.read(new File(line[0])));
+            //ImageIO.write(screenCapture, "png", new File("screen.png"));
+            Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
+            if(point != null) {
+                System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
+                out.writeUTF( Math.round(point.getX()) + " " + Math.round(point.getY()));
+            } else {
+                System.out.println("Not found");
+                out.writeUTF( "Not found");
+            }
+        } else if ("containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
+            Point point = ImageProcessor.containsEx(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
                 System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
                 out.writeUTF( Math.round(point.getX()) + " " + Math.round(point.getY()));
@@ -155,7 +169,7 @@ public class MouseController {
             BufferedImage screenCapture = robot.createScreenCapture(
                     new Rectangle(x, y, x2, y2));
 
-            Point point = contains(screenCapture, ImageIO.read(new File(line[0])));
+            Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
                 long roundX = Math.round(point.getX() + x);
                 long roundY = Math.round(point.getY() + y);
@@ -186,27 +200,6 @@ public class MouseController {
                 e.printStackTrace();
             }
         }
-    }
-
-    private Point contains(BufferedImage bigImage, BufferedImage subImage) {
-        for (int hY = 0; hY <= bigImage.getHeight() - subImage.getHeight(); hY++) {
-            for (int hX = 0; hX <= bigImage.getWidth() - subImage.getWidth(); hX++) {
-                int deviation = Math.abs(bigImage.getRGB(hX, hY) - subImage.getRGB(0, 0));
-                newCheck:
-                if (deviation <= 3 && deviation >= -3) {
-                    for (int nY = 0; nY < subImage.getHeight(); nY++) {
-                        for (int nX = 0; nX < subImage.getWidth(); nX++) {
-                            int deviation2 = Math.abs(bigImage.getRGB(hX + nX, hY + nY) - subImage.getRGB(nX, nY));
-                            if (!(deviation2 >=-1 && deviation2 <= 1)) {
-                                break newCheck;
-                            }
-                        }
-                    }
-                    return new Point(hX, hY);
-                }
-            }
-        }
-        return null;
     }
 
     private void printImage(BufferedImage image) {

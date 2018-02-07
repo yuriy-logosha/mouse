@@ -5,30 +5,40 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class Command {
-    public static void main(String[] args) {
-        try {
-            String address = "127.0.0.1";
-            int serverPort = 6666;
-            InetAddress ipAddress = InetAddress.getByName(address);
-            Socket socket = new Socket(ipAddress, serverPort);
+    private final static String address = "127.0.0.1";
+    private final static int serverPort = 6666;
 
-            InputStream sin = socket.getInputStream();
-            OutputStream sout = socket.getOutputStream();
+    private final Socket socket;
 
-            DataInputStream in = new DataInputStream(sin);
-            DataOutputStream out = new DataOutputStream(sout);
+    private final DataOutputStream out;
+    private final DataInputStream in;
 
-            StringBuilder sb = new StringBuilder();
-            for (String arg : args) {
-                sb.append(arg);
-                sb.append(" ");
-            }
+    public Command() throws IOException {
+        InetAddress ipAddress = InetAddress.getByName(address);
+        socket = new Socket(ipAddress, serverPort);
 
-            out.writeUTF(sb.toString());
-            out.flush();
-            System.out.printf(in.readUTF());
-        } catch (IOException e) {
-            e.printStackTrace();
+        InputStream sin = socket.getInputStream();
+        OutputStream sout = socket.getOutputStream();
+
+        in = new DataInputStream(sin);
+        out = new DataOutputStream(sout);
+
+    }
+
+    public String execute(String[] args) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        for (String arg : args) {
+            sb.append(arg);
+            sb.append(" ");
         }
+
+        out.writeUTF(sb.toString());
+        out.flush();
+        return in.readUTF();
+    }
+
+    public static void main(String[] args) throws IOException {
+        Command c = new Command();
+        System.out.printf(c.execute(args));
     }
 }
