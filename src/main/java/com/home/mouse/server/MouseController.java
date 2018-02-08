@@ -18,8 +18,6 @@ import java.util.List;
 public class MouseController {
     private Robot robot;
     boolean isExit = false;
-    DataInputStream in;
-    DataOutputStream out;
     private int port = 6666;
 
     public MouseController(Robot robot) throws AWTException {
@@ -37,23 +35,23 @@ public class MouseController {
                 InputStream sin = socket.getInputStream();
                 OutputStream sout = socket.getOutputStream();
 
-                in = new DataInputStream(sin);
-                out = new DataOutputStream(sout);
+                DataInputStream in = new DataInputStream(sin);
+                DataOutputStream out = new DataOutputStream(sout);
 
                 String line = null;
 
                 try {
                     line = in.readUTF();
 
-                    System.out.println(line);
+                    System.out.println("Received: " + line);
 
                     if (line.contains(";")) {
                         String[] commands = line.split(";");
                         for (String command : commands) {
-                            process(command.trim());
+                            out.writeUTF(process(command.trim()));
                         }
                     } else {
-                        process(line);
+                        out.writeUTF(process(line));
                     }
                     out.writeUTF("Done");
                     out.flush();
@@ -66,25 +64,29 @@ public class MouseController {
             System.out.println("Can not create listener on port " + port);
             x.printStackTrace();
         }
-
     }
 
-    private void process(String command) throws AWTException, IOException {
+    private String process(String command) throws AWTException, IOException {
         String[] commandLine = command.split(" ");
         String commandName = commandLine[0];
         commandLine = Arrays.copyOfRange(commandLine, 1, commandLine.length);
         if (command != null) {
-            execute(commandName, commandLine);
+            return execute(commandName, commandLine);
         }
+        return "";
     }
 
-    private void execute(String command, String[] line) throws AWTException, IOException {
+    private String execute(String command, String[] line) throws AWTException, IOException {
         if ("exit".equalsIgnoreCase(command)) {
             isExit = true;
+            System.out.println("Exiting...");
+            return "Exiting...";
         } else if ("move".equalsIgnoreCase(command)) {
             int x = Integer.valueOf(line[0]);
             int y = Integer.valueOf(line[1]);
             robot.mouseMove(x, y);
+            System.out.println("Move to " + x + ":" + y);
+            return "Moved to " + x + ":" + y;
         } else if ("lclick".equalsIgnoreCase(command)) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -139,10 +141,10 @@ public class MouseController {
             Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
                 System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
-                out.writeUTF( Math.round(point.getX()) + " " + Math.round(point.getY()));
+                return Math.round(point.getX()) + " " + Math.round(point.getY());
             } else {
                 System.out.println("Not found");
-                out.writeUTF( "Not found");
+                return "Not found";
             }
         } else if ("containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -150,10 +152,10 @@ public class MouseController {
             Point point = ImageProcessor.containsEx(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
                 System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
-                out.writeUTF( Math.round(point.getX()) + " " + Math.round(point.getY()));
+                return Math.round(point.getX()) + " " + Math.round(point.getY());
             } else {
                 System.out.println("Not found");
-                out.writeUTF( "Not found");
+                return "Not found";
             }
         } else if ("containsInRange".equalsIgnoreCase(command)) {
             int x = 0;
@@ -174,10 +176,10 @@ public class MouseController {
                 long roundX = Math.round(point.getX() + x);
                 long roundY = Math.round(point.getY() + y);
                 System.out.println("Found: " + roundX + " " + roundY);
-                out.writeUTF( roundX + " " + roundY);
+                return roundX + " " + roundY;
             } else {
                 System.out.println("Not found");
-                out.writeUTF( "Not found");
+                return "Not found";
             }
 
         } else if ("refresh".equalsIgnoreCase(command)) {
@@ -185,7 +187,7 @@ public class MouseController {
 
         } else if ("show".equalsIgnoreCase(command)) {
             System.out.println(Math.round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + Math.round(MouseInfo.getPointerInfo().getLocation().getY()));
-            out.writeUTF(Math.round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + Math.round(MouseInfo.getPointerInfo().getLocation().getY()));
+            return Math.round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + Math.round(MouseInfo.getPointerInfo().getLocation().getY());
         } else if ("getcolor".equalsIgnoreCase(command)) {
             try {
                 int x = Integer.valueOf(line[0]);
@@ -195,11 +197,12 @@ public class MouseController {
 
                 String result = pixelColor.getRed() + " " + pixelColor.getGreen() + " " + pixelColor.getBlue();
                 System.out.println(result);
-                out.writeUTF(result);
+                return result;
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
         }
+        return "";
     }
 
     private void printImage(BufferedImage image) {
