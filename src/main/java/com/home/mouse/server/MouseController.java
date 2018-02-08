@@ -1,19 +1,14 @@
 package com.home.mouse.server;
 
-import com.home.mouse.server.proc.ImageProcessor;
+import com.home.mouse.server.processors.ImageProcessor;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class MouseController {
     private Robot robot;

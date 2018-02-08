@@ -1,4 +1,4 @@
-package com.home.mouse.server.proc;
+package com.home.mouse.server.processors;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
