@@ -69,4 +69,27 @@ public class ImageProcessor {
         return true;
     }
 
+    private void printImage(BufferedImage image) {
+        System.out.print("____");
+        for (int hX = 0; hX < ((image.getWidth() >= 150) ? 150 : image.getWidth()); hX++) {
+            System.out.print(("         " + hX + " ").substring(String.valueOf(hX).length()));
+        }
+        System.out.println("|");
+        for (int hY = 0; hY < ((image.getHeight() >= 150) ? 150 : image.getHeight()); hY++) {
+            System.out.print(("000" + hY).substring(String.valueOf(hY).length()) + "|");
+            for (int hX = 0; hX < ((image.getWidth() >= 150) ? 150 : image.getWidth()); hX++) {
+                Object dataElements = image.getRaster().getDataElements(hX, hY, null);
+                String value1 = image.getColorModel().getRed(dataElements) + "";
+                String value2 = image.getColorModel().getGreen(dataElements) + "";
+                String value3 = image.getColorModel().getBlue(dataElements) + "";
+
+                System.out.print(("000" + value1).substring(value1.length()) + ("000" + value2).substring(value2.length()) + ("000" + value3).substring(value3.length()) + " ");
+
+            }
+            System.out.println("|");
+        }
+
+    }
+
+
 }

@@ -1,67 +1,24 @@
-package com.home.mouse.server;
+package com.home.mouse.server.processors;
 
-import com.home.mouse.server.processors.ImageProcessor;
+import com.home.mouse.server.controller.MouseController;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
-public class MouseController {
-    private Robot robot;
-    boolean isExit = false;
-    private int port = 6666;
+public class CommandProcessor {
 
-    public MouseController(Robot robot) throws AWTException {
-        this.robot = robot;
+    private MouseController mouseController;
+
+    public CommandProcessor(MouseController mouseController) {
+        this.mouseController = mouseController;
     }
 
-    public void start() {
-        try {
-            ServerSocket ss = new ServerSocket(port);
-            System.out.println("Waiting for a command...");
-
-            while (!isExit) {
-                Socket socket = ss.accept();
-
-                InputStream sin = socket.getInputStream();
-                OutputStream sout = socket.getOutputStream();
-
-                DataInputStream in = new DataInputStream(sin);
-                DataOutputStream out = new DataOutputStream(sout);
-
-                String line = null;
-
-                try {
-                    line = in.readUTF();
-
-                    System.out.println("Received: " + line);
-
-                    if (line.contains(";")) {
-                        String[] commands = line.split(";");
-                        for (String command : commands) {
-                            out.writeUTF(process(command.trim()));
-                        }
-                    } else {
-                        out.writeUTF(process(line));
-                    }
-                    out.writeUTF("Done");
-                    out.flush();
-
-                } catch (IOException | NumberFormatException | AWTException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (IOException x) {
-            System.out.println("Can not create listener on port " + port);
-            x.printStackTrace();
-        }
-    }
-
-    private String process(String command) throws AWTException, IOException {
+    public String process(String command) throws AWTException, IOException {
         String[] commandLine = command.split(" ");
         String commandName = commandLine[0];
         commandLine = Arrays.copyOfRange(commandLine, 1, commandLine.length);
@@ -72,8 +29,9 @@ public class MouseController {
     }
 
     private String execute(String command, String[] line) throws AWTException, IOException {
+        Robot robot = mouseController.getRobot();
         if ("exit".equalsIgnoreCase(command)) {
-            isExit = true;
+            mouseController.exit();
             System.out.println("Exiting...");
             return "Exiting...";
         } else if ("move".equalsIgnoreCase(command)) {
@@ -200,25 +158,4 @@ public class MouseController {
         return "";
     }
 
-    private void printImage(BufferedImage image) {
-        System.out.print("____");
-        for (int hX = 0; hX < ((image.getWidth() >= 150) ? 150 : image.getWidth()); hX++) {
-            System.out.print(("         " + hX + " ").substring(String.valueOf(hX).length()));
-        }
-        System.out.println("|");
-        for (int hY = 0; hY < ((image.getHeight() >= 150) ? 150 : image.getHeight()); hY++) {
-            System.out.print(("000" + hY).substring(String.valueOf(hY).length()) + "|");
-            for (int hX = 0; hX < ((image.getWidth() >= 150) ? 150 : image.getWidth()); hX++) {
-                Object dataElements = image.getRaster().getDataElements(hX, hY, null);
-                String value1 = image.getColorModel().getRed(dataElements) + "";
-                String value2 = image.getColorModel().getGreen(dataElements) + "";
-                String value3 = image.getColorModel().getBlue(dataElements) + "";
-
-                System.out.print(("000" + value1).substring(value1.length()) + ("000" + value2).substring(value2.length()) + ("000" + value3).substring(value3.length()) + " ");
-
-            }
-            System.out.println("|");
-        }
-
-    }
 }

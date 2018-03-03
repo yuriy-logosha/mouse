@@ -7,6 +7,10 @@
     <groupId>com.home</groupId>
     <artifactId>mouse</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>server</module>
+        <module>client</module>
+    </modules>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -15,59 +19,25 @@
         </dependency>
     </dependencies>
 
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <build>
-        <finalName>mouse</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <classifier>server</classifier>
-                    <excludes>
-                        <exclude>**/client/*</exclude>
-                    </excludes>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.home.mouse.server.Mouse</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>command</classifier>
-                            <excludes>
-                                <exclude>**/server/*</exclude>
-                            </excludes>
-                            <archive>
-                                <manifest>
-                                    <mainClass>com.home.mouse.client.Command</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
-    </build>
 
+    </build>
 
 </project>
