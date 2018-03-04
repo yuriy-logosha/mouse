@@ -22,8 +22,6 @@ public class ImageProcessorTest {
     private BufferedImage pic5;
     private BufferedImage pic6;
     private BufferedImage pic7;
-    private BufferedImage pic8;
-    private BufferedImage pic9;
     private BufferedImage pic0;
 
     @Before
@@ -36,19 +34,10 @@ public class ImageProcessorTest {
         pic6 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("_all.png"));
         pic7 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("_all2.png"));
         pic0 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("00.png"));
-        pic8 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("case1.png"));
-        pic9 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("rss-number-0.png"));
         //ImageProcessor.printImageRGB(pic0);
         //ImageProcessor.printImage(pic0);
 
     }
-
-    @Test
-    public void containsTest1() {
-        Point result = ImageProcessor.contains(pic8, pic9);
-        //assertNotNull(result);
-    }
-
 
     @Test
     public void containsTest() {

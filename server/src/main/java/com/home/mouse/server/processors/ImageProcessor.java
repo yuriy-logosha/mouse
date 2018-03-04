@@ -27,6 +27,9 @@ public class ImageProcessor {
         int shiftY = hY - xyv.y;
         for (int nX = xyv.x; nX < rightImage.getWidth(); nX++) {
             for (int nY = xyv.y; nY < rightImage.getHeight() && rightImage.getRGB(nX, nY) != 0; nY++) {
+                if(leftImage.getWidth() < nX + shiftX || leftImage.getHeight() < nY + shiftY) {
+                    return false;
+                }
                 XYV leftValue = getXYV(leftImage,nX + shiftX, nY + shiftY);
                 XYV rightValue = getXYV(rightImage, nX, nY);
                 if (!isPointInRange(leftValue, rightValue)) {
@@ -60,7 +63,7 @@ public class ImageProcessor {
             int value3 = img.getColorModel().getBlue(dataElements);
             return new XYV(x, y, img.getRGB(x, y), new RGB(value1, value2, value3));
         } catch(ArrayIndexOutOfBoundsException e) {
-            System.out.println(String.format("Error creating XYV from: {} {}", x, y));
+            System.out.println("Error creating XYV from: " + x + " " + y);
             e.printStackTrace();
         }
         return null;
