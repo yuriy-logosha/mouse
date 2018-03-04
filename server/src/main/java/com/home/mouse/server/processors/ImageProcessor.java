@@ -27,7 +27,7 @@ public class ImageProcessor {
         int shiftY = hY - xyv.y;
         for (int nX = xyv.x; nX < rightImage.getWidth(); nX++) {
             for (int nY = xyv.y; nY < rightImage.getHeight() && rightImage.getRGB(nX, nY) != 0; nY++) {
-                if(leftImage.getWidth() < nX + shiftX || leftImage.getHeight() < nY + shiftY) {
+                if(leftImage.getWidth() -1 < nX + shiftX || leftImage.getHeight() -1 < nY + shiftY) {
                     return false;
                 }
                 XYV leftValue = getXYV(leftImage,nX + shiftX, nY + shiftY);
