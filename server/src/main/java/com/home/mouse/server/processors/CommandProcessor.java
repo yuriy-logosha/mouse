@@ -36,27 +36,33 @@ public class CommandProcessor {
             mouseController.exit();
             System.out.println("Exiting...");
             return "Exiting...";
+
         } else if ("move".equalsIgnoreCase(command)) {
             int x = Integer.valueOf(line[0]);
             int y = Integer.valueOf(line[1]);
             robot.mouseMove(x, y);
             System.out.println("Move to " + x + ":" + y);
             return "Moved to " + x + ":" + y;
+
         } else if ("lclick".equalsIgnoreCase(command)) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
+
         } else if ("mclick".equalsIgnoreCase(command)) {
             robot.mousePress(InputEvent.BUTTON2_MASK);
             robot.mouseRelease(InputEvent.BUTTON2_MASK);
+
         } else if ("rclick".equalsIgnoreCase(command)) {
             robot.mousePress(InputEvent.BUTTON3_MASK);
             robot.mouseRelease(InputEvent.BUTTON3_MASK);
+
         } else if ("dblclick".equalsIgnoreCase(command)) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
             robot.delay(50);
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
+
         } else if ("presskey".equalsIgnoreCase(command)) {
             for (String s : line) {
                 robot.keyPress(Integer.parseInt(s));
@@ -74,25 +80,19 @@ public class CommandProcessor {
             System.out.println("Screen resolution: " + Toolkit.getDefaultToolkit().getScreenResolution());
 
         } else if ("screenRange2File".equalsIgnoreCase(command)) {
-
-            int x = 0;
-            try {
-                x = Integer.valueOf(line[1]);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
+            int x = Integer.valueOf(line[1]);
             int y = Integer.valueOf(line[2]);
             int x2 = Integer.valueOf(line[3]);
             int y2 = Integer.valueOf(line[4]);
             Rectangle screenRect = new Rectangle(x, y, x2 - x, y2 - y);
-            BufferedImage capture = new Robot().createScreenCapture(screenRect);
+            BufferedImage capture = robot.createScreenCapture(screenRect);
             ImageIO.write(capture, "png", new File(line[0]));
             System.out.println("File name: " + line[0]);
             System.out.println("Picture size: " + capture.getHeight() + "x" + capture.getWidth());
+
         } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)) {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
-            //ImageIO.write(screenCapture, "png", new File("screen.png"));
             Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
                 System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
@@ -101,6 +101,7 @@ public class CommandProcessor {
                 System.out.println("Not found");
                 return "Not found";
             }
+
         } else if ("containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
@@ -112,24 +113,19 @@ public class CommandProcessor {
                 System.out.println("Not found");
                 return "Not found";
             }
-        } else if ("containsInRange".equalsIgnoreCase(command)) {
-            int x = 0;
-            try {
-                x = Integer.valueOf(line[1]);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-            int y = Integer.valueOf(line[2]);
-            int x2 = Integer.valueOf(line[3]);
-            int y2 = Integer.valueOf(line[4]);
 
-            BufferedImage screenCapture = robot.createScreenCapture(
-                    new Rectangle(x, y, x2, y2));
+        } else if ("containsInRange".equalsIgnoreCase(command)) {
+            int beginX = Integer.valueOf(line[1]);
+            int beginY = Integer.valueOf(line[2]);
+            int finishX = Integer.valueOf(line[3]);
+            int finishY = Integer.valueOf(line[4]);
+
+            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(beginX, beginY, finishX, finishY));
 
             Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
-                long roundX = round(point.getX() + x);
-                long roundY = round(point.getY() + y);
+                long roundX = round(point.getX() + beginX);
+                long roundY = round(point.getY() + beginY);
                 System.out.println("Found: " + roundX + " " + roundY);
                 return roundX + " " + roundY;
             } else {
@@ -143,6 +139,7 @@ public class CommandProcessor {
         } else if ("show".equalsIgnoreCase(command)) {
             System.out.println(round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + round(MouseInfo.getPointerInfo().getLocation().getY()));
             return round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + round(MouseInfo.getPointerInfo().getLocation().getY());
+
         } else if ("getcolor".equalsIgnoreCase(command)) {
             try {
                 int x = Integer.valueOf(line[0]);
