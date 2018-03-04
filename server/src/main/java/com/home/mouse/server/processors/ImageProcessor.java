@@ -2,17 +2,19 @@ package com.home.mouse.server.processors;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class ImageProcessor {
 
     public static Point contains(BufferedImage leftImage, BufferedImage rightImage) {
-        XYV xyv = getFirstNotZeroedValue(rightImage);
+        XYV firstNotZeroedRightValue = getFirstNotZeroedValue(rightImage);
         for (int hX = 0; hX < leftImage.getWidth(); hX++) {
             for (int hY = 0; hY < leftImage.getHeight(); hY++) {
 
-                int firstValueLeft = leftImage.getRGB(hX, hY);
+                XYV leftValue = getXYV(leftImage, hX, hY);
 
-                if (isPointInRange(firstValueLeft, xyv.value) && isPictureMatch(xyv, leftImage, rightImage, hX, hY)) {
+                if (isPointInRange(leftValue, firstNotZeroedRightValue)
+                        && isPictureMatch(firstNotZeroedRightValue, leftImage, rightImage, hX, hY)) {
                     return new Point(hX, hY);
                 }
             }
@@ -25,8 +27,8 @@ public class ImageProcessor {
         int shiftY = hY - xyv.y;
         for (int nX = xyv.x; nX < rightImage.getWidth(); nX++) {
             for (int nY = xyv.y; nY < rightImage.getHeight() && rightImage.getRGB(nX, nY) != 0; nY++) {
-                int leftValue = leftImage.getRGB(nX + shiftX, nY + shiftY);
-                int rightValue = rightImage.getRGB(nX, nY);
+                XYV leftValue = getXYV(leftImage,nX + shiftX, nY + shiftY);
+                XYV rightValue = getXYV(rightImage, nX, nY);
                 if (!isPointInRange(leftValue, rightValue)) {
                     return false;
                 }
@@ -35,28 +37,53 @@ public class ImageProcessor {
         return true;
     }
 
-    private static boolean isPointInRange(int firstValueLeft, int firstValueRight) {
-        return beetween(-3, 3, firstValueLeft - firstValueRight);
+    private static boolean isPointInRange(XYV firstValueLeft, XYV firstValueRight) {
+        return beetween(-3, 3, firstValueLeft.rgb.r - firstValueRight.rgb.r)
+                && beetween(-3, 3, firstValueLeft.rgb.g - firstValueRight.rgb.g)
+                && beetween(-3, 3, firstValueLeft.rgb.b - firstValueRight.rgb.b);
     }
 
-    private static XYV getFirstNotZeroedValue(BufferedImage rightImage){
+    private static XYV getFirstNotZeroedValue(BufferedImage rightImage) {
         for (int x = 0; x < rightImage.getWidth(); x++) {
             for (int y = 0; y < rightImage.getHeight() && rightImage.getRGB(x, y) != 0; y++) {
-                return new XYV(x, y, rightImage.getRGB(x, y));
+                return getXYV(rightImage, x, y);
             }
         }
         return null;
+    }
+
+    private static XYV getXYV(BufferedImage img, int x, int y) {
+        Object dataElements = img.getRaster().getDataElements(x, y, null);
+        int value1 = img.getColorModel().getRed(dataElements);
+        int value2 = img.getColorModel().getGreen(dataElements);
+        int value3 = img.getColorModel().getBlue(dataElements);
+
+        return new XYV(x, y, img.getRGB(x, y), new RGB(value1, value2, value3));
+    }
+
+    static class RGB {
+        int r;
+        int g;
+        int b;
+
+        public RGB(int r, int g, int b) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
     }
 
     static class XYV {
         int x;
         int y;
         int value;
+        RGB rgb;
 
-        public XYV(int x, int y, int value) {
+        public XYV(int x, int y, int value, RGB rgb) {
             this.x = x;
             this.y = y;
             this.value = value;
+            this.rgb = rgb;
         }
     }
 
@@ -93,7 +120,7 @@ public class ImageProcessor {
 
         for (int hY = 0; hY < bigImage.getHeight() - subImageHeight; hY++) {
             for (int hX = 0; hX < bigImage.getWidth() - subImageWidth; hX++) {
-                if (    bigImage.getRGB(hX + keyPointsX[0], hY + keyPointsY[0]) == keyPointsValues[0] &&
+                if (bigImage.getRGB(hX + keyPointsX[0], hY + keyPointsY[0]) == keyPointsValues[0] &&
                         bigImage.getRGB(hX + keyPointsX[1], hY + keyPointsY[1]) == keyPointsValues[1] &&
                         bigImage.getRGB(hX + keyPointsX[2], hY + keyPointsY[2]) == keyPointsValues[2] &&
                         bigImage.getRGB(hX + keyPointsX[3], hY + keyPointsY[3]) == keyPointsValues[3] &&
@@ -108,7 +135,8 @@ public class ImageProcessor {
     static class XY {
         final int x;
         final int y;
-        public XY(int x, int y){
+
+        public XY(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -127,7 +155,7 @@ public class ImageProcessor {
         return true;
     }
 
-    public static void printImage(BufferedImage image) {
+    public static void printImageRGB(BufferedImage image) {
         System.out.print("____");
         for (int hX = 0; hX < ((image.getWidth() >= 150) ? 150 : image.getWidth()); hX++) {
             System.out.print(("         " + hX + " ").substring(String.valueOf(hX).length()));
@@ -140,14 +168,50 @@ public class ImageProcessor {
                 String value1 = image.getColorModel().getRed(dataElements) + "";
                 String value2 = image.getColorModel().getGreen(dataElements) + "";
                 String value3 = image.getColorModel().getBlue(dataElements) + "";
-
                 System.out.print(("000" + value1).substring(value1.length()) + ("000" + value2).substring(value2.length()) + ("000" + value3).substring(value3.length()) + " ");
-
             }
             System.out.println("|");
         }
-
     }
 
+    public static void printImage(BufferedImage image) {
+        System.out.print("____");
+        for (int hX = 0; hX < image.getWidth(); hX++) {
+            System.out.print(("         " + hX + " ").substring(String.valueOf(hX).length()));
+        }
+        System.out.println("|");
+        for (int hY = 0; hY < image.getHeight(); hY++) {
+            System.out.print(("000" + hY).substring(String.valueOf(hY).length()) + "|");
+            for (int hX = 0; hX < image.getWidth(); hX++) {
+                String value = String.valueOf(image.getRGB(hX, hY));
+                if (image.getRGB(hX, hY) == 0) {
+                    System.out.print("          ");
+                } else {
+                    System.out.print(("         " + value).substring(value.length()) + " ");
+                }
+            }
+            System.out.println("|");
+        }
+    }
+
+    public static void printImage(BufferedImage image, Rectangle rectangle) {
+        System.out.print("____");
+        for (int hX = 0; hX < rectangle.getWidth(); hX++) {
+            System.out.print(("         " + hX + " ").substring(String.valueOf(hX).length()));
+        }
+        System.out.println("|");
+        for (int hY = 0; hY < rectangle.getHeight(); hY++) {
+            System.out.print(("000" + hY).substring(String.valueOf(hY).length()) + "|");
+            for (int hX = 0; hX < rectangle.getWidth(); hX++) {
+                String value = String.valueOf(image.getRGB(hX, hY));
+                if (image.getRGB(hX, hY) == 0) {
+                    System.out.print("          ");
+                } else {
+                    System.out.print(("         " + value).substring(value.length()) + " ");
+                }
+            }
+            System.out.println("|");
+        }
+    }
 
 }

@@ -21,6 +21,8 @@ public class ImageProcessorTest {
     private BufferedImage pic4;
     private BufferedImage pic5;
     private BufferedImage pic6;
+    private BufferedImage pic7;
+    private BufferedImage pic0;
 
     @Before
     public void setUp() throws Exception {
@@ -30,7 +32,10 @@ public class ImageProcessorTest {
         pic4 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("1.png"));
         pic5 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("1_tr.png"));
         pic6 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("_all.png"));
-
+        pic7 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("zeros.png"));
+        pic0 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("0.png"));
+        //ImageProcessor.printImageRGB(pic0);
+        //ImageProcessor.printImage(pic0);
 
     }
 
@@ -56,6 +61,14 @@ public class ImageProcessorTest {
         assertNotNull(result);
         assertEquals(349, result.getX(), 0);
         assertEquals(466, result.getY(), 0);
+    }
+
+    @Test
+    public void containsTestTransparencyZero() {
+        Point result = ImageProcessor.contains(pic7, pic0);
+        assertNotNull(result);
+        assertEquals(5, result.getX(), 0);
+        assertEquals(1, result.getY(), 0);
     }
 
     @Test
@@ -98,8 +111,8 @@ public class ImageProcessorTest {
 
     @Test
     public void printImage() throws IOException {
-        ImageProcessor.printImage(pic4);
-        ImageProcessor.printImage(pic5);
+        ImageProcessor.printImageRGB(pic7);
+        ImageProcessor.printImageRGB(pic0);
     }
 
 }
