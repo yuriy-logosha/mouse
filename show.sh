@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-cd /Users/yura/IdeaProjects/mouse/target/classes
-RESULT=$(java com/home/Command show)
+cd /Users/yura/IdeaProjects/mouse/client/target/classes
+RESULT=$(java com/home/mouse/client/Command show)
 
 _RESULT=($RESULT)
 _x=${_RESULT[0]}

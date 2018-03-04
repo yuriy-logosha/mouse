@@ -53,12 +53,17 @@ public class ImageProcessor {
     }
 
     private static XYV getXYV(BufferedImage img, int x, int y) {
-        Object dataElements = img.getRaster().getDataElements(x, y, null);
-        int value1 = img.getColorModel().getRed(dataElements);
-        int value2 = img.getColorModel().getGreen(dataElements);
-        int value3 = img.getColorModel().getBlue(dataElements);
-
-        return new XYV(x, y, img.getRGB(x, y), new RGB(value1, value2, value3));
+        try {
+            Object dataElements = img.getRaster().getDataElements(x, y, null);
+            int value1 = img.getColorModel().getRed(dataElements);
+            int value2 = img.getColorModel().getGreen(dataElements);
+            int value3 = img.getColorModel().getBlue(dataElements);
+            return new XYV(x, y, img.getRGB(x, y), new RGB(value1, value2, value3));
+        } catch(ArrayIndexOutOfBoundsException e) {
+            System.out.println(String.format("Error creating XYV from: {} {}", x, y));
+            e.printStackTrace();
+        }
+        return null;
     }
 
     static class RGB {
