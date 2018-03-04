@@ -5,25 +5,63 @@ import java.awt.image.BufferedImage;
 
 public class ImageProcessor {
 
-    public static Point contains(BufferedImage bigImage, BufferedImage subImage) {
-        for (int hY = 0; hY < bigImage.getHeight() - subImage.getHeight(); hY++) {
-            for (int hX = 0; hX < bigImage.getWidth() - subImage.getWidth(); hX++) {
-                int deviation = bigImage.getRGB(hX, hY) - subImage.getRGB(0, 0);
-                newCheck:
-                if (deviation <= 3 && deviation >= -3) {
-                    for (int nY = 0; nY < subImage.getHeight(); nY++) {
-                        for (int nX = 0; nX < subImage.getWidth(); nX++) {
-                            int deviation2 = bigImage.getRGB(hX + nX, hY + nY) - subImage.getRGB(nX, nY);
-                            if (!(deviation2 >= -1 && deviation2 <= 1)) {
-                                break newCheck;
-                            }
-                        }
-                    }
+    public static Point contains(BufferedImage leftImage, BufferedImage rightImage) {
+        XYV xyv = getFirstNotZeroedValue(rightImage);
+        for (int hX = 0; hX < leftImage.getWidth(); hX++) {
+            for (int hY = 0; hY < leftImage.getHeight(); hY++) {
+
+                int firstValueLeft = leftImage.getRGB(hX, hY);
+
+                if (isPointInRange(firstValueLeft, xyv.value) && isPictureMatch(xyv, leftImage, rightImage, hX, hY)) {
                     return new Point(hX, hY);
                 }
             }
         }
         return null;
+    }
+
+    private static boolean isPictureMatch(XYV xyv, BufferedImage leftImage, BufferedImage rightImage, int hX, int hY) {
+        int shiftX = hX - xyv.x;
+        int shiftY = hY - xyv.y;
+        for (int nX = xyv.x; nX < rightImage.getWidth(); nX++) {
+            for (int nY = xyv.y; nY < rightImage.getHeight() && rightImage.getRGB(nX, nY) != 0; nY++) {
+                int leftValue = leftImage.getRGB(nX + shiftX, nY + shiftY);
+                int rightValue = rightImage.getRGB(nX, nY);
+                if (!isPointInRange(leftValue, rightValue)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean isPointInRange(int firstValueLeft, int firstValueRight) {
+        return beetween(-3, 3, firstValueLeft - firstValueRight);
+    }
+
+    private static XYV getFirstNotZeroedValue(BufferedImage rightImage){
+        for (int x = 0; x < rightImage.getWidth(); x++) {
+            for (int y = 0; y < rightImage.getHeight() && rightImage.getRGB(x, y) != 0; y++) {
+                return new XYV(x, y, rightImage.getRGB(x, y));
+            }
+        }
+        return null;
+    }
+
+    static class XYV {
+        int x;
+        int y;
+        int value;
+
+        public XYV(int x, int y, int value) {
+            this.x = x;
+            this.y = y;
+            this.value = value;
+        }
+    }
+
+    private static boolean beetween(int left, int right, int value) {
+        return value >= left && value <= right;
     }
 
     public static Point containsEx(BufferedImage bigImage, BufferedImage subImage) {
@@ -33,6 +71,17 @@ public class ImageProcessor {
 
         int halfWidth = subImageWidth / 2;
         int halhHeight = subImageHeight / 2;
+
+/*
+        XY[] dot = new XY[5];
+
+        dot[0] = new XY(0, 0);
+        dot[1] = new XY(subImageWidth - 1, subImageHeight - 1);
+        dot[2] = new XY(halfWidth, halhHeight);
+        dot[3] = new XY(0, subImageHeight - 1);
+        dot[4] = new XY(subImageWidth - 1, 0);
+*/
+
         int[] keyPointsX = new int[]{0, subImageWidth - 1, halfWidth, 0, subImageWidth - 1};
         int[] keyPointsY = new int[]{0, subImageHeight - 1, halhHeight, subImageHeight - 1, 0};
         int[] keyPointsValues = new int[]{
@@ -56,6 +105,15 @@ public class ImageProcessor {
         return null;
     }
 
+    static class XY {
+        final int x;
+        final int y;
+        public XY(int x, int y){
+            this.x = x;
+            this.y = y;
+        }
+    }
+
     private static boolean checkAll(BufferedImage bigImage, BufferedImage subImage, int x1, int y1) {
         for (int nY = 0; nY < subImage.getHeight(); nY++) {
             for (int nX = 0; nX < subImage.getWidth(); nX++) {
@@ -69,7 +127,7 @@ public class ImageProcessor {
         return true;
     }
 
-    private void printImage(BufferedImage image) {
+    public static void printImage(BufferedImage image) {
         System.out.print("____");
         for (int hX = 0; hX < ((image.getWidth() >= 150) ? 150 : image.getWidth()); hX++) {
             System.out.print(("         " + hX + " ").substring(String.valueOf(hX).length()));

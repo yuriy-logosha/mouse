@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static java.lang.Math.round;
+
 public class CommandProcessor {
 
     private MouseController mouseController;
@@ -93,8 +95,8 @@ public class CommandProcessor {
             //ImageIO.write(screenCapture, "png", new File("screen.png"));
             Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
-                System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
-                return Math.round(point.getX()) + " " + Math.round(point.getY());
+                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
+                return round(point.getX()) + " " + round(point.getY());
             } else {
                 System.out.println("Not found");
                 return "Not found";
@@ -104,8 +106,8 @@ public class CommandProcessor {
             BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
             Point point = ImageProcessor.containsEx(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
-                System.out.println("Found: " + Math.round(point.getX()) + " " + Math.round(point.getY()));
-                return Math.round(point.getX()) + " " + Math.round(point.getY());
+                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
+                return round(point.getX()) + " " + round(point.getY());
             } else {
                 System.out.println("Not found");
                 return "Not found";
@@ -126,8 +128,8 @@ public class CommandProcessor {
 
             Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
             if(point != null) {
-                long roundX = Math.round(point.getX() + x);
-                long roundY = Math.round(point.getY() + y);
+                long roundX = round(point.getX() + x);
+                long roundY = round(point.getY() + y);
                 System.out.println("Found: " + roundX + " " + roundY);
                 return roundX + " " + roundY;
             } else {
@@ -139,8 +141,8 @@ public class CommandProcessor {
             robot = new Robot();
 
         } else if ("show".equalsIgnoreCase(command)) {
-            System.out.println(Math.round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + Math.round(MouseInfo.getPointerInfo().getLocation().getY()));
-            return Math.round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + Math.round(MouseInfo.getPointerInfo().getLocation().getY());
+            System.out.println(round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + round(MouseInfo.getPointerInfo().getLocation().getY()));
+            return round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + round(MouseInfo.getPointerInfo().getLocation().getY());
         } else if ("getcolor".equalsIgnoreCase(command)) {
             try {
                 int x = Integer.valueOf(line[0]);
