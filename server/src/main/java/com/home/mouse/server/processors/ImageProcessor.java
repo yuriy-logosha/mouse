@@ -2,7 +2,6 @@ package com.home.mouse.server.processors;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class ImageProcessor {
 
@@ -48,8 +47,8 @@ public class ImageProcessor {
 
     private static XYV getFirstNotZeroedValue(BufferedImage rightImage) {
         for (int x = 0; x < rightImage.getWidth(); x++) {
-            for (int y = 0; y < rightImage.getHeight() && rightImage.getRGB(x, y) != 0; y++) {
-                return getXYV(rightImage, x, y);
+            for (int y = 0; y < rightImage.getHeight() && rightImage.getRGB(y, x) != 0; y++) {
+                return getXYV(rightImage, y, x);
             }
         }
         return null;
