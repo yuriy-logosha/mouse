@@ -1,9 +1,72 @@
-package com.home.mouse.server.processors;
+package com.home.mouse;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import static java.lang.Math.round;
 
 public class ImageProcessor {
+    private Robot robot;
+
+    public ImageProcessor() throws AWTException {
+        robot = new Robot();
+    }
+
+    public static void main(String[] line) {
+        String command = line[0];
+
+        try {
+            ImageProcessor ip = new ImageProcessor();
+            ip.executeCmd(command, line);
+        } catch (AWTException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void executeCmd(String command, String[] line) throws IOException {
+        if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)) {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
+            Point point = contains(screenCapture, ImageIO.read(new File(line[0])));
+            if(point != null) {
+                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
+            } else {
+                System.out.println("Not found");
+            }
+
+        } else if ("containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
+            Point point = containsEx(screenCapture, ImageIO.read(new File(line[0])));
+            if(point != null) {
+                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
+            } else {
+                System.out.println("Not found");
+            }
+
+        } else if ("containsInRange".equalsIgnoreCase(command)) {
+            int beginX = Integer.valueOf(line[1]);
+            int beginY = Integer.valueOf(line[2]);
+            int finishX = Integer.valueOf(line[3]);
+            int finishY = Integer.valueOf(line[4]);
+
+            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(beginX, beginY, finishX, finishY));
+
+            Point point = contains(screenCapture, ImageIO.read(new File(line[0])));
+            if (point != null) {
+                long roundX = round(point.getX() + beginX);
+                long roundY = round(point.getY() + beginY);
+                System.out.println("Found: " + roundX + " " + roundY);
+            } else {
+                System.out.println("Not found");
+            }
+        }
+    }
 
     public static Point contains(BufferedImage leftImage, BufferedImage rightImage) {
         XYV firstNotZeroedRightValue = getFirstNotZeroedValue(rightImage);

@@ -90,49 +90,6 @@ public class CommandProcessor {
             System.out.println("File name: " + line[0]);
             System.out.println("Picture size: " + capture.getHeight() + "x" + capture.getWidth());
 
-        } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)) {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
-            Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
-            if(point != null) {
-                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
-                return round(point.getX()) + " " + round(point.getY());
-            } else {
-                System.out.println("Not found");
-                return "Not found";
-            }
-
-        } else if ("containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
-            Point point = ImageProcessor.containsEx(screenCapture, ImageIO.read(new File(line[0])));
-            if(point != null) {
-                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
-                return round(point.getX()) + " " + round(point.getY());
-            } else {
-                System.out.println("Not found");
-                return "Not found";
-            }
-
-        } else if ("containsInRange".equalsIgnoreCase(command)) {
-            int beginX = Integer.valueOf(line[1]);
-            int beginY = Integer.valueOf(line[2]);
-            int finishX = Integer.valueOf(line[3]);
-            int finishY = Integer.valueOf(line[4]);
-
-            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(beginX, beginY, finishX, finishY));
-
-            Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
-            if(point != null) {
-                long roundX = round(point.getX() + beginX);
-                long roundY = round(point.getY() + beginY);
-                System.out.println("Found: " + roundX + " " + roundY);
-                return roundX + " " + roundY;
-            } else {
-                System.out.println("Not found");
-                return "Not found";
-            }
-
         } else if ("refresh".equalsIgnoreCase(command)) {
             robot = new Robot();
 

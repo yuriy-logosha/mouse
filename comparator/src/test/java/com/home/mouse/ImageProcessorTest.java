@@ -1,4 +1,4 @@
-package com.home.mouse.server.processors;
+package com.home.mouse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +24,9 @@ public class ImageProcessorTest {
     private BufferedImage pic7;
     private BufferedImage pic0;
 
+    private BufferedImage pic8;
+    private BufferedImage pic9;
+
     @Before
     public void setUp() throws Exception {
         pic1 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("big-picture.png"));
@@ -34,9 +37,19 @@ public class ImageProcessorTest {
         pic6 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("_all.png"));
         pic7 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("_all2.png"));
         pic0 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("00.png"));
-        //ImageProcessor.printImageRGB(pic0);
-        //ImageProcessor.printImage(pic0);
+        pic8 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("screen_0.png"));
+        pic9 = ImageIO.read(getClass().getClassLoader().getResourceAsStream("rss-number-0.png"));
 
+        ImageProcessor.printImageRGB(pic8.getSubimage(397, 428, 24, 14));
+        ImageProcessor.printImageRGB(pic9);
+
+    }
+
+    @Test
+    public void containsTest2() {
+
+        Point result = ImageProcessor.contains(pic8.getSubimage(397, 428, 24, 14), pic9);
+        assertNotNull(result);
     }
 
     @Test
@@ -51,24 +64,24 @@ public class ImageProcessorTest {
     public void containsTestOnSmallPictures() {
         Point result = ImageProcessor.contains(pic4, pic5);
         assertNotNull(result);
-        assertEquals(2, result.getX(), 0);
-        assertEquals(0, result.getY(), 0);
+        assertEquals(0, result.getX(), 0);
+        assertEquals(2, result.getY(), 0);
     }
 
     @Test
     public void containsTestTransparency() {
         Point result = ImageProcessor.contains(pic6, pic5);
         assertNotNull(result);
-        assertEquals(349, result.getX(), 0);
-        assertEquals(466, result.getY(), 0);
+        assertEquals(347, result.getX(), 0);
+        assertEquals(468, result.getY(), 0);
     }
 
     @Test
     public void containsTestTransparencyZero() {
         Point result = ImageProcessor.contains(pic7, pic0);
         assertNotNull(result);
-        assertEquals(350, result.getX(), 0);
-        assertEquals(465, result.getY(), 0);
+        assertEquals(348, result.getX(), 0);
+        assertEquals(467, result.getY(), 0);
     }
 
     @Test
