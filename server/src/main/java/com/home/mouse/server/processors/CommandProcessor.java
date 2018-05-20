@@ -101,9 +101,7 @@ public class CommandProcessor {
             System.out.println("Picture size: " + capture.getHeight() + "x" + capture.getWidth());
 
         } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)) {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
-            Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
+            Point point = ImageProcessor.contains(getScreenCapture(), ImageIO.read(new File(line[0])));
             if(point != null) {
                 System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
                 return round(point.getX()) + " " + round(point.getY());
@@ -113,9 +111,7 @@ public class CommandProcessor {
             }
 
         } else if ("containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(screenSize));
-            Point point = ImageProcessor.containsEx(screenCapture, ImageIO.read(new File(line[0])));
+            Point point = ImageProcessor.containsEx(getScreenCapture(), ImageIO.read(new File(line[0])));
             if(point != null) {
                 System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
                 return round(point.getX()) + " " + round(point.getY());
@@ -130,9 +126,7 @@ public class CommandProcessor {
             int finishX = Integer.valueOf(line[3]);
             int finishY = Integer.valueOf(line[4]);
 
-            BufferedImage screenCapture = robot.createScreenCapture(new Rectangle(beginX, beginY, finishX, finishY));
-
-            Point point = ImageProcessor.contains(screenCapture, ImageIO.read(new File(line[0])));
+            Point point = ImageProcessor.contains(getScreenCapture(new Rectangle(beginX, beginY, finishX, finishY)), ImageIO.read(new File(line[0])));
             if(point != null) {
                 long roundX = round(point.getX() + beginX);
                 long roundY = round(point.getY() + beginY);
@@ -165,6 +159,16 @@ public class CommandProcessor {
             }
         }
         return "";
+    }
+
+    private BufferedImage getScreenCapture() {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        return getScreenCapture(new Rectangle(screenSize));
+    }
+
+    private BufferedImage getScreenCapture(Rectangle rectangle) {
+        Robot robot = mouseController.getRobot();
+        return robot.createScreenCapture(rectangle);
     }
 
 }
