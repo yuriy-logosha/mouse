@@ -106,16 +106,6 @@ public class ImageProcessor {
         int halfWidth = subImageWidth / 2;
         int halhHeight = subImageHeight / 2;
 
-/*
-        XY[] dot = new XY[5];
-
-        dot[0] = new XY(0, 0);
-        dot[1] = new XY(subImageWidth - 1, subImageHeight - 1);
-        dot[2] = new XY(halfWidth, halhHeight);
-        dot[3] = new XY(0, subImageHeight - 1);
-        dot[4] = new XY(subImageWidth - 1, 0);
-*/
-
         int[] keyPointsX = new int[]{0, subImageWidth - 1, halfWidth, 0, subImageWidth - 1};
         int[] keyPointsY = new int[]{0, subImageHeight - 1, halhHeight, subImageHeight - 1, 0};
         int[] keyPointsValues = new int[]{
