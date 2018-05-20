@@ -47,6 +47,12 @@ public class CommandProcessor {
             logger.log(Level.INFO, "Moved to {1}:{2}", new Object[]{x, y});
             return "Moved to " + x + ":" + y;
 
+        } else if ("mousePress1".equalsIgnoreCase(command)) {
+            robot.mousePress(InputEvent.BUTTON1_MASK);
+
+        } else if ("mouseRelease1".equalsIgnoreCase(command)) {
+            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+
         } else if ("lclick".equalsIgnoreCase(command)) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
