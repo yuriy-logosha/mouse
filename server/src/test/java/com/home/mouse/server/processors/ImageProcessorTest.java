@@ -51,24 +51,24 @@ public class ImageProcessorTest {
     public void containsTestOnSmallPictures() {
         Point result = ImageProcessor.contains(pic4, pic5);
         assertNotNull(result);
-        assertEquals(2, result.getX(), 0);
-        assertEquals(0, result.getY(), 0);
+        assertEquals(0, result.getX(), 0);
+        assertEquals(2, result.getY(), 0);
     }
 
     @Test
     public void containsTestTransparency() {
         Point result = ImageProcessor.contains(pic6, pic5);
         assertNotNull(result);
-        assertEquals(349, result.getX(), 0);
-        assertEquals(466, result.getY(), 0);
+        assertEquals(347, result.getX(), 0);
+        assertEquals(468, result.getY(), 0);
     }
 
     @Test
     public void containsTestTransparencyZero() {
         Point result = ImageProcessor.contains(pic7, pic0);
         assertNotNull(result);
-        assertEquals(350, result.getX(), 0);
-        assertEquals(465, result.getY(), 0);
+        assertEquals(348, result.getX(), 0);
+        assertEquals(467, result.getY(), 0);
     }
 
     @Test
