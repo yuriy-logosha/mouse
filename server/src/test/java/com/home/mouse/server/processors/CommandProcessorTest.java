@@ -34,4 +34,13 @@ public class CommandProcessorTest {
         Assert.assertTrue(MouseInfo.getPointerInfo().getLocation().getX() == 0);
     }
 
+    @Test
+    public void testTransparentPicture () throws IOException {
+        BufferedImage bi = ImageIO.read(getClass().getClassLoader().getResourceAsStream("1_tr.png"));
+        for(int i = 0; i <= bi.getHeight()-1; i++) {
+            for(int j = 0; j <= bi.getWidth()-1; j++) {
+                System.out.println(bi.getRGB(j, i));
+            }
+        }
+    }
 }
