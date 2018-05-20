@@ -5,8 +5,12 @@ import com.home.mouse.server.processors.CommandProcessor;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MouseController {
+    private final static Logger logger = Logger.getLogger(MouseController.class.getName());
+
     private Robot robot;
     private boolean isExit = false;
     private int port = 6666;
@@ -29,7 +33,7 @@ public class MouseController {
     public void start() {
         try {
             ServerSocket ss = new ServerSocket(port);
-            System.out.println("Waiting for a command...");
+            logger.log(Level.INFO, "Waiting for a command...");
 
             while (!isExit) {
                 Socket socket = ss.accept();
@@ -45,7 +49,7 @@ public class MouseController {
                 try {
                     line = in.readUTF();
 
-                    System.out.println("Received: " + line);
+                    logger.log(Level.INFO, "Received: {1}", new Object[]{line});
 
                     if (line.contains(";")) {
                         String[] commands = line.split(";");
@@ -62,9 +66,8 @@ public class MouseController {
                     e.printStackTrace();
                 }
             }
-        } catch (IOException x) {
-            System.out.println("Can not create listener on port " + port);
-            x.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

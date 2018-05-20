@@ -9,11 +9,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static java.lang.Math.round;
 
 public class CommandProcessor {
 
+    private final static Logger logger = Logger.getLogger(CommandProcessor.class.getName());
     private MouseController mouseController;
 
     public CommandProcessor(MouseController mouseController) {
@@ -34,14 +37,14 @@ public class CommandProcessor {
         Robot robot = mouseController.getRobot();
         if ("exit".equalsIgnoreCase(command)) {
             mouseController.exit();
-            System.out.println("Exiting...");
+            logger.log(Level.INFO, "Exiting...");
             return "Exiting...";
 
         } else if ("move".equalsIgnoreCase(command)) {
             int x = Integer.valueOf(line[0]);
             int y = Integer.valueOf(line[1]);
             robot.mouseMove(x, y);
-            System.out.println("Move to " + x + ":" + y);
+            logger.log(Level.INFO, "Moved to {1}:{2}", new Object[]{x, y});
             return "Moved to " + x + ":" + y;
 
         } else if ("lclick".equalsIgnoreCase(command)) {
@@ -57,9 +60,11 @@ public class CommandProcessor {
             robot.mouseRelease(InputEvent.BUTTON3_MASK);
 
         } else if ("dblclick".equalsIgnoreCase(command)) {
+            int delay = Integer.valueOf(line[0]);
+
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
-            robot.delay(50);
+            robot.delay(delay);
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
 
@@ -75,9 +80,8 @@ public class CommandProcessor {
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
             ImageIO.write(capture, "png", new File(line[0]));
-            System.out.println("Captured to file: " + line[0]);
-            System.out.println("Screen size: " + Toolkit.getDefaultToolkit().getScreenSize());
-            System.out.println("Screen resolution: " + Toolkit.getDefaultToolkit().getScreenResolution());
+            logger.log(Level.INFO, "Captured to file: {1}; Size: {2}; Resolution: {3}",
+                    new Object[]{line[0], Toolkit.getDefaultToolkit().getScreenSize(), Toolkit.getDefaultToolkit().getScreenResolution()});
 
         } else if ("screenRange2File".equalsIgnoreCase(command)) {
             int x = Integer.valueOf(line[1]);
