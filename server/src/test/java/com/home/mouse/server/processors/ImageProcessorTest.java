@@ -1,6 +1,7 @@
 package com.home.mouse.server.processors;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -84,6 +85,7 @@ public class ImageProcessorTest {
     }
 
     @Test
+    @Ignore
     public void firstMethodLoadTest() {
         int result = 0;
         int cases = 20;
@@ -99,6 +101,7 @@ public class ImageProcessorTest {
     }
 
     @Test
+    @Ignore
     public void secondMethodLoadTest() throws IOException {
         int result = 0;
         int cases = 200;
