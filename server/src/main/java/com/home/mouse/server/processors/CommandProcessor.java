@@ -44,7 +44,7 @@ public class CommandProcessor {
             int x = Integer.valueOf(line[0]);
             int y = Integer.valueOf(line[1]);
             robot.mouseMove(x, y);
-            logger.log(Level.INFO, "Moved to {1}:{2}", new Object[]{x, y});
+            logger.log(Level.INFO, "Moved to {0}:{1}", new Object[]{x, y});
             return "Moved to " + x + ":" + y;
 
         } else if ("mousePress1".equalsIgnoreCase(command)) {
@@ -86,7 +86,7 @@ public class CommandProcessor {
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
             ImageIO.write(capture, "png", new File(line[0]));
-            logger.log(Level.INFO, "Captured to file: {1}; Size: {2}; Resolution: {3}",
+            logger.log(Level.INFO, "Captured to file: {0}; Size: {1}; Resolution: {2}",
                     new Object[]{line[0], Toolkit.getDefaultToolkit().getScreenSize(), Toolkit.getDefaultToolkit().getScreenResolution()});
 
         } else if ("screenRange2File".equalsIgnoreCase(command)) {

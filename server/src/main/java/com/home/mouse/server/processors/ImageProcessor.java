@@ -119,8 +119,6 @@ public class ImageProcessor {
 
     private static boolean checkKeyPoints(XYV[] dots, BufferedImage bigImage, int hX, int hY) {
         XYV xyv = buildXYV(bigImage, hX, hY);
-        logger.log(Level.INFO,"Compaire ({0}, {1})={2} vs ({3}, {4})={5}",
-                new Object[]{hX, hY, getRGB(bigImage.getColorModel(), bigImage.getRaster().getDataElements(hX, hY, null)), dots[0].x, dots[0].y, getRGB(dots[0].rgb)});
         if(!xyv.rgb.equals(dots[0].rgb)){
             return false;
         }
@@ -130,8 +128,6 @@ public class ImageProcessor {
 
         for (int i = 1; i < dots.length; i++) {
             xyv = buildXYV(bigImage, dots[i].x + shiftX, dots[i].y + shiftY);
-            logger.log(Level.INFO,"Compaire ({0}, {1})={2} vs ({3}, {4})={5}",
-                    new Object[]{dots[i].x + shiftX, dots[i].y + shiftY, getRGB(bigImage.getColorModel(), bigImage.getRaster().getDataElements(dots[i].x + shiftX, dots[i].y + shiftY, null)), dots[i].x, dots[i].y, getRGB(dots[i].rgb)});
             if(!xyv.rgb.equals(dots[i].rgb)){
                 return false;
             }
@@ -144,7 +140,6 @@ public class ImageProcessor {
             for (int nX = 0; nX < subImage.getWidth(); nX++) {
                 int leftVal = bigImage.getRGB(x1 + nX, y1 + nY);
                 int rightVal = subImage.getRGB(nX, nY);
-                logger.log(Level.INFO,"Compaire ({0}, {1})={2} vs ({3}, {4})={5}", new Object[]{x1 + nX, y1 + nY, nX, nY, leftVal, rightVal});
                 if (bigImage.getRGB(x1 + nX, y1 + nY) != subImage.getRGB(nX, nY)) {
                     return false;
                 }
