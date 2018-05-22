@@ -49,7 +49,7 @@ public class MouseController {
                 try {
                     line = in.readUTF();
 
-                    logger.log(Level.INFO, "Received: {1}", new Object[]{line});
+                    logger.log(Level.INFO, "Received: {0}", new Object[]{line});
 
                     if (line.contains(";")) {
                         String[] commands = line.split(";");
