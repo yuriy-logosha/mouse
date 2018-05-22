@@ -143,7 +143,7 @@ public class CommandProcessor {
             if(point != null) {
                 long roundX = round(point.getX() + beginX);
                 long roundY = round(point.getY() + beginY);
-                info("Found: ", new Long[] {roundX, roundY});
+                info("Found: {0} {1}", new Long[] {roundX, roundY});
                 return roundX + " " + roundY;
             } else {
                 info(NOT_FOUND);
