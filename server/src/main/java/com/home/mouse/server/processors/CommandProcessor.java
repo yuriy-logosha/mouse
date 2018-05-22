@@ -124,9 +124,9 @@ public class CommandProcessor {
             Point point = command.endsWith("Ex")?
                             ImageProcessor.containsEx(getScreenCapture(), img):
                             ImageProcessor.contains(getScreenCapture(), img);
-            long x = round(point.getX());
-            long y = round(point.getY());
             if (point != null) {
+                long x = round(point.getX());
+                long y = round(point.getY());
                 info("Found: {0} {1}", new Long[] {x, y});
                 return x + " " + y;
             } else {
