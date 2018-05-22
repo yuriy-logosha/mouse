@@ -109,7 +109,7 @@ public class CommandProcessor {
                 || "containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
             Point point = command.endsWith("Ex")?
                             ImageProcessor.containsEx(getScreenCapture(), ImageIO.read(new File(line[0]))):
-                            ImageProcessor.containsEx(getScreenCapture(), ImageIO.read(new File(line[0])));
+                            ImageProcessor.contains(getScreenCapture(), ImageIO.read(new File(line[0])));
             if(point != null) {
                 info("Found: {0} {1}",
                         new Object[] {round(point.getX()), round(point.getY())});
