@@ -16,7 +16,8 @@ import static java.lang.Math.round;
 
 public class CommandProcessor {
 
-    private final static Logger logger = Logger.getLogger(CommandProcessor.class.getName());
+    private static final Logger logger = Logger.getLogger(CommandProcessor.class.getName());
+    private static final String NOT_FOUND = "Not found";
     private MouseController mouseController;
 
     public CommandProcessor(MouseController mouseController) {
@@ -37,15 +38,16 @@ public class CommandProcessor {
         Robot robot = mouseController.getRobot();
         if ("exit".equalsIgnoreCase(command)) {
             mouseController.exit();
-            logger.log(Level.INFO, "Exiting...");
+            info("Exiting...");
             return "Exiting...";
 
         } else if ("move".equalsIgnoreCase(command)) {
             int x = Integer.valueOf(line[0]);
             int y = Integer.valueOf(line[1]);
             robot.mouseMove(x, y);
-            logger.log(Level.INFO, "Moved to {0}:{1}", new Object[]{x, y});
-            return "Moved to " + x + ":" + y;
+            String result = "Moved to " + x + ":" + y;
+            info(result);
+            return result;
 
         } else if ("mousePress1".equalsIgnoreCase(command)) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
@@ -86,7 +88,7 @@ public class CommandProcessor {
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
             ImageIO.write(capture, "png", new File(line[0]));
-            logger.log(Level.INFO, "Captured to file: {0}; Size: {1}; Resolution: {2}",
+            info("Captured to file: {0}; Size: {1}; Resolution: {2}",
                     new Object[]{line[0], Toolkit.getDefaultToolkit().getScreenSize(), Toolkit.getDefaultToolkit().getScreenResolution()});
 
         } else if ("screenRange2File".equalsIgnoreCase(command)) {
@@ -97,29 +99,25 @@ public class CommandProcessor {
             Rectangle screenRect = new Rectangle(x, y, x2 - x, y2 - y);
             BufferedImage capture = robot.createScreenCapture(screenRect);
             ImageIO.write(capture, "png", new File(line[0]));
-            System.out.println("File name: " + line[0]);
-            System.out.println("Picture size: " + capture.getHeight() + "x" + capture.getWidth());
+            info("Captured to file: {0}; Size: {1} x {2}",
+                    new Object[] {line[0],
+                            capture.getHeight(),
+                            capture.getWidth()});
 
-        } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)) {
-            Point point = ImageProcessor.contains(getScreenCapture(), ImageIO.read(new File(line[0])));
+
+        } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)
+                || "containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
+            Point point = command.endsWith("Ex")?
+                            ImageProcessor.containsEx(getScreenCapture(), ImageIO.read(new File(line[0]))):
+                            ImageProcessor.containsEx(getScreenCapture(), ImageIO.read(new File(line[0])));
             if(point != null) {
-                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
+                info("Found: {0} {1}",
+                        new Object[] {round(point.getX()), round(point.getY())});
                 return round(point.getX()) + " " + round(point.getY());
             } else {
-                System.out.println("Not found");
-                return "Not found";
+                info(NOT_FOUND);
+                return NOT_FOUND;
             }
-
-        } else if ("containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
-            Point point = ImageProcessor.containsEx(getScreenCapture(), ImageIO.read(new File(line[0])));
-            if(point != null) {
-                System.out.println("Found: " + round(point.getX()) + " " + round(point.getY()));
-                return round(point.getX()) + " " + round(point.getY());
-            } else {
-                System.out.println("Not found");
-                return "Not found";
-            }
-
         } else if ("containsInRange".equalsIgnoreCase(command)) {
             int beginX = Integer.valueOf(line[1]);
             int beginY = Integer.valueOf(line[2]);
@@ -130,19 +128,22 @@ public class CommandProcessor {
             if(point != null) {
                 long roundX = round(point.getX() + beginX);
                 long roundY = round(point.getY() + beginY);
-                System.out.println("Found: " + roundX + " " + roundY);
+                info("Found: " + roundX + " " + roundY);
                 return roundX + " " + roundY;
             } else {
-                System.out.println("Not found");
-                return "Not found";
+                info(NOT_FOUND);
+                return NOT_FOUND;
             }
 
         } else if ("refresh".equalsIgnoreCase(command)) {
             robot = new Robot();
 
         } else if ("show".equalsIgnoreCase(command)) {
-            System.out.println(round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + round(MouseInfo.getPointerInfo().getLocation().getY()));
-            return round(MouseInfo.getPointerInfo().getLocation().getX()) + " " + round(MouseInfo.getPointerInfo().getLocation().getY());
+            long x = round(MouseInfo.getPointerInfo().getLocation().getX());
+            long y = round(MouseInfo.getPointerInfo().getLocation().getY());
+            String result = x + " " + y;
+            info(result);
+            return result;
 
         } else if ("getcolor".equalsIgnoreCase(command)) {
             try {
@@ -152,7 +153,7 @@ public class CommandProcessor {
                 Color pixelColor = robot.getPixelColor(x, y);
 
                 String result = pixelColor.getRed() + " " + pixelColor.getGreen() + " " + pixelColor.getBlue();
-                System.out.println(result);
+                info(result);
                 return result;
             } catch (NumberFormatException e) {
                 e.printStackTrace();
@@ -169,6 +170,14 @@ public class CommandProcessor {
     private BufferedImage getScreenCapture(Rectangle rectangle) {
         Robot robot = mouseController.getRobot();
         return robot.createScreenCapture(rectangle);
+    }
+
+    private void info(String msg) {
+        logger.log(Level.INFO, msg);
+    }
+
+    private void info(String msg, Object[] objs) {
+        logger.log(Level.INFO, msg, objs);
     }
 
 }
