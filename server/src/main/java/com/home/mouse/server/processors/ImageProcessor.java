@@ -88,12 +88,10 @@ public class ImageProcessor {
         for (int hX = 0; hX < bigImage.getWidth() - subImage.getWidth(); hX++) {
             for (int hY = 0; hY < bigImage.getHeight() - subImage.getHeight(); hY++) {
                 if (checkKeyPoints(dots, bigImage, hX, hY)) {
-                    logger.log(Level.INFO, "Found.");
                     return new Point(hX, hY);
                 }
             }
         }
-        logger.log(Level.INFO,"Not found similarities.");
         return null;
     }
 

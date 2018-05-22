@@ -117,6 +117,7 @@ public class ImageProcessorTest {
     }
 
     @Test
+    @Ignore
     public void printImage() throws IOException {
         ImageProcessor.printImageRGB(pic7);
         ImageProcessor.printImageRGB(pic0);
