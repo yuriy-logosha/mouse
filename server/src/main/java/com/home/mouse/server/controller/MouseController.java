@@ -22,6 +22,11 @@ public class MouseController {
         processor = new CommandProcessor(this);
     }
 
+    public MouseController(Robot robot, int port) {
+        this(robot);
+        this.port = port;
+    }
+
     public Robot getRobot(){
         return robot;
     }

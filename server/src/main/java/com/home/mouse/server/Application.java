@@ -8,7 +8,13 @@ public class Application {
 
     public static void main(String[] args) throws AWTException {
         System.setProperty("apple.awt.UIElement", "true");
-        MouseController mouseController = new MouseController(new Robot());
+        String port = System.getProperty("port");
+        MouseController mouseController;
+        if(port != null && !port.isEmpty()) {
+            mouseController = new MouseController(new Robot(), Integer.valueOf(port));
+        } else {
+            mouseController = new MouseController(new Robot());
+        }
         mouseController.start();
     }
 
