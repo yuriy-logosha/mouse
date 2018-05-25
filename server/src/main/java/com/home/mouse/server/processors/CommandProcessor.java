@@ -98,11 +98,8 @@ public class CommandProcessor {
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
             ImageIO.write(capture, "png", new File(line[0]));
-            info("Captured to file: {0}; Size: {1}x{2}; Resolution: {3}",
-                    new Object[]{line[0],
-                            Toolkit.getDefaultToolkit().getScreenSize().getHeight(),
-                            Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-                            Toolkit.getDefaultToolkit().getScreenResolution()});
+            info("Captured to file: {0}",
+                    new Object[]{line[0]});
 
         } else if ("screenRange2File".equalsIgnoreCase(command)) {
             int x = Integer.valueOf(line[1]);
@@ -112,10 +109,8 @@ public class CommandProcessor {
             Rectangle screenRect = new Rectangle(x, y, x2 - x, y2 - y);
             BufferedImage capture = robot.createScreenCapture(screenRect);
             ImageIO.write(capture, "png", new File(line[0]));
-            info("Captured to file: {0}; Size: {1}x{2}",
-                    new Object[] {line[0],
-                            capture.getHeight(),
-                            capture.getWidth()});
+            info("Captured to file: {0}",
+                    new Object[] {line[0]});
 
 
         } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)
