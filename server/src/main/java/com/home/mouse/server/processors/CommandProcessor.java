@@ -170,6 +170,8 @@ public class CommandProcessor {
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
+        }  else if ("print".equalsIgnoreCase(command)) {
+            ImageProcessor.printImage(getImage(line[0]));
         }
         return "";
     }
