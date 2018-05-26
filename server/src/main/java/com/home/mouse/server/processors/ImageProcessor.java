@@ -7,7 +7,6 @@ import java.awt.image.Raster;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ImageProcessor {
@@ -85,8 +84,8 @@ public class ImageProcessor {
 
         XYV[] dots = analizeImage(subImage);
 
-        for (int hX = 0; hX < bigImage.getWidth() - subImage.getWidth(); hX++) {
-            for (int hY = 0; hY < bigImage.getHeight() - subImage.getHeight(); hY++) {
+        for (int hY = 0; hY < bigImage.getHeight() - subImage.getHeight(); hY++) {
+            for (int hX = 0; hX < bigImage.getWidth() - subImage.getWidth(); hX++) {
                 if (checkKeyPoints(dots, bigImage, hX, hY)) {
                     return new Point(hX, hY);
                 }
@@ -98,8 +97,8 @@ public class ImageProcessor {
     private static XYV[] analizeImage(BufferedImage subImage){
         List<XYV> ldots = new ArrayList();
 
-        for(int x = 0; x < subImage.getWidth(); x++) {
-            for(int y = 0; y < subImage.getHeight(); y++) {
+        for(int y = 0; y < subImage.getHeight(); y++) {
+            for(int x = 0; x < subImage.getWidth(); x++) {
                 int value = subImage.getRGB(x, y);
                 if(value > 0) {
                     ldots.add(buildXYV(subImage, x, y));
