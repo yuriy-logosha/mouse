@@ -55,6 +55,22 @@ public class CommandsTest {
     }
 
 
+    @Test
+    public void executeShow1000Times() {
+        long start = System.currentTimeMillis();
+        repeateCommand(1000, "show");
+        long end = System.currentTimeMillis() - start;
+        assertTrue(end <= 300);
+    }
+
+    @Test
+    public void contains10Times() {
+        long start = System.currentTimeMillis();
+        repeateCommand(1000, "contains server/src/test/resources/sub-picture2.png");
+        long end = System.currentTimeMillis() - start;
+        assertTrue(end <= 300);
+    }
+
     //
     // Helpers
     //

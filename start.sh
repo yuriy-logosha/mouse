@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-java client/target/classes/com/home/mouse/client/Command exit
+java -jar client/target/mouse-client.jar exit
 
-java server/target/classes/com/home/mouse/server/Application -Dapple.awt.UIElement=true
+java -jar server/target/mouse-server.jar -Djava.util.logging.config.file=server/src/main/resources/logging.properties -Dapple.awt.UIElement=true
 
