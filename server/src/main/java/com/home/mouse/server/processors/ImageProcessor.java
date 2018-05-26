@@ -16,8 +16,8 @@ public class ImageProcessor {
 
     public static Point contains(BufferedImage leftImage, BufferedImage rightImage) {
         XYV firstNotZeroedRightValue = getFirstNotZeroedValue(rightImage);
-        for (int hX = 0; hX < leftImage.getWidth(); hX++) {
-            for (int hY = 0; hY < leftImage.getHeight(); hY++) {
+        for (int hY = 0; hY < leftImage.getHeight(); hY++) {
+            for (int hX = 0; hX < leftImage.getWidth(); hX++) {
 
                 XYV leftValue = buildXYV(leftImage, hX, hY);
 
@@ -33,8 +33,8 @@ public class ImageProcessor {
     private static boolean isPictureMatch(XYV xyv, BufferedImage leftImage, BufferedImage rightImage, int hX, int hY) {
         int shiftX = hX - xyv.x;
         int shiftY = hY - xyv.y;
-        for (int nX = xyv.x; nX < rightImage.getWidth(); nX++) {
-            for (int nY = xyv.y; nY < rightImage.getHeight() && rightImage.getRGB(nX, nY) != 0; nY++) {
+        for (int nY = xyv.y; nY < rightImage.getHeight(); nY++) {
+            for (int nX = xyv.x; nX < rightImage.getWidth() && rightImage.getRGB(nX, nY) != 0; nX++) {
                 if(leftImage.getWidth() -1 < nX + shiftX || leftImage.getHeight() -1 < nY + shiftY) {
                     return false;
                 }
@@ -55,8 +55,8 @@ public class ImageProcessor {
     }
 
     private static XYV getFirstNotZeroedValue(BufferedImage rightImage) {
-        for (int x = 0; x < rightImage.getWidth(); x++) {
-            for (int y = 0; y < rightImage.getHeight() && rightImage.getRGB(y, x) != 0; y++) {
+        for (int y = 0; y < rightImage.getHeight(); y++) {
+            for (int x = 0; x < rightImage.getWidth() && rightImage.getRGB(y, x) != 0; x++) {
                 return buildXYV(rightImage, y, x);
             }
         }

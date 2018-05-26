@@ -88,7 +88,7 @@ public class ImageProcessorTest {
     @Ignore
     public void firstMethodLoadTest() {
         int result = 0;
-        int cases = 20;
+        int cases = 10;
         for (int i = 0; i < cases; i++) {
             Instant start = Instant.now();
             Point point = ImageProcessor.contains(pic1, pic3);
@@ -104,7 +104,7 @@ public class ImageProcessorTest {
     @Ignore
     public void secondMethodLoadTest() throws IOException {
         int result = 0;
-        int cases = 200;
+        int cases = 10;
         for (int i = 0; i < cases; i++) {
             Instant start = Instant.now();
             Point point = ImageProcessor.containsEx(pic8, pic9);
