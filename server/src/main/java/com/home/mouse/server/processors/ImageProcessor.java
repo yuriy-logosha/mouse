@@ -100,7 +100,7 @@ public class ImageProcessor {
         for(int y = 0; y < subImage.getHeight(); y++) {
             for(int x = 0; x < subImage.getWidth(); x++) {
                 int value = subImage.getRGB(x, y);
-                if(value > 0) {
+                if(value != 0) {
                     ldots.add(buildXYV(subImage, x, y));
                 }
             }
@@ -153,6 +153,8 @@ public class ImageProcessor {
 
         System.out.println("hasAlpha: " + image.getColorModel().hasAlpha());
         System.out.println("isAlphaPremultiplied: " + image.getColorModel().isAlphaPremultiplied());
+        System.out.println("getTransparency: " + colorModel.getTransparency());
+
         System.out.print("____");
 
         for (int hX = 0; hX < getMin(image.getWidth(), max); hX++) {
