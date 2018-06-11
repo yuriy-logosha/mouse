@@ -35,12 +35,32 @@ public class CommandProcessorTest {
     }
 
     @Test
+    @Ignore
     public void testTransparentPicture () throws IOException {
-        BufferedImage bi = ImageIO.read(getClass().getClassLoader().getResourceAsStream("1_tr.png"));
+        BufferedImage bi = getResource("1_tr.png");
         for(int i = 0; i <= bi.getHeight()-1; i++) {
             for(int j = 0; j <= bi.getWidth()-1; j++) {
                 System.out.println(bi.getRGB(j, i));
             }
         }
     }
+
+    @Test
+    public void testShow () throws IOException, AWTException {
+        BufferedImage bi = getResource("1_tr.png");
+        String result = cp.process("show");
+        Assert.assertTrue(result.split(" ").length == 2);
+    }
+
+    @Test
+    public void testContainsAll () throws IOException, AWTException {
+        BufferedImage bi = getResource("1_tr.png");
+        String result = cp.process("containsAll src/test/resources/sub-picture.png src/test/resources/sub-picture2.png");
+        Assert.assertTrue(result.equals("Not found"));
+    }
+
+    private static BufferedImage getResource(String name) throws IOException {
+        return ImageIO.read(CommandProcessorTest.class.getClassLoader().getResourceAsStream(name));
+    }
+
 }

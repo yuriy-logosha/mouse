@@ -8,9 +8,8 @@ import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -115,10 +114,26 @@ public class CommandProcessor {
 
         } else if ("contains".equalsIgnoreCase(command) || "containsInScreen".equalsIgnoreCase(command)
                 || "containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
-            BufferedImage img = getImage(line[0]);
+            BufferedImage rightImage = getImage(line[0]);
             Point point = command.endsWith("Ex")?
-                            ImageProcessor.containsEx(getScreenCapture(), img):
-                            ImageProcessor.contains(getScreenCapture(), img);
+                            ImageProcessor.containsEx(getScreenCapture(), rightImage):
+                            ImageProcessor.contains(getScreenCapture(), rightImage);
+            if (point != null) {
+                long x = round(point.getX());
+                long y = round(point.getY());
+                info("Found: {0} {1}", new Long[] {x, y});
+                return x + " " + y;
+            } else {
+                info(NOT_FOUND);
+                return NOT_FOUND;
+            }
+        } else if ("containsAll".equalsIgnoreCase(command)) {
+            List<BufferedImage> images = new ArrayList();
+            StringTokenizer st = new StringTokenizer(line[0]);
+            while (st.hasMoreTokens()) {
+                images.add(getImage(st.nextToken()));
+            }
+            Point point = ImageProcessor.contains(getScreenCapture(), images);
             if (point != null) {
                 long x = round(point.getX());
                 long y = round(point.getY());
