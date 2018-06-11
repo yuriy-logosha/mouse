@@ -1,6 +1,7 @@
 package com.home.mouse.server.controller;
 
 import com.home.mouse.server.processors.CommandProcessor;
+import com.home.mouse.server.processors.ImageProcessor;
 
 import java.awt.*;
 import java.io.*;
@@ -19,7 +20,7 @@ public class MouseController {
 
     public MouseController(Robot robot) {
         this.robot = robot;
-        processor = new CommandProcessor(this);
+        processor = new CommandProcessor(this, new ImageProcessor());
     }
 
     public MouseController(Robot robot, int port) {
@@ -67,7 +68,7 @@ public class MouseController {
                     out.writeUTF("Done");
                     out.flush();
 
-                } catch (IOException | NumberFormatException | AWTException e) {
+                } catch (IOException | NumberFormatException e) {
                     e.printStackTrace();
                 }
             }

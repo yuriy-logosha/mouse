@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.PriorityQueue;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
@@ -46,7 +47,8 @@ public class ImageProcessorTest {
 
     @Test
     public void containsTest() {
-        Point result = ImageProcessor.contains(pic1, pic2);
+        ImageProcessor processor = new ImageProcessor();
+        Point result = processor.contains(pic1, pic2);
         assertNotNull(result);
         assertEquals(1286, result.getX(), 0);
         assertEquals(490, result.getY(), 0);
@@ -54,7 +56,8 @@ public class ImageProcessorTest {
 
     @Test
     public void containsTestOnSmallPictures() {
-        Point result = ImageProcessor.contains(pic4, pic5);
+        ImageProcessor processor = new ImageProcessor();
+        Point result = processor.contains(pic4, pic5);
         assertNotNull(result);
         assertEquals(2, result.getX(), 0);
         assertEquals(0, result.getY(), 0);
@@ -62,7 +65,8 @@ public class ImageProcessorTest {
 
     @Test
     public void containsTestTransparency() {
-        Point result = ImageProcessor.contains(pic6, pic5);
+        ImageProcessor processor = new ImageProcessor();
+        Point result = processor.contains(pic6, pic5);
         assertNotNull(result);
         assertEquals(465, result.getX(), 0);
         assertEquals(465, result.getY(), 0);
@@ -70,7 +74,8 @@ public class ImageProcessorTest {
 
     @Test
     public void containsTestTransparencyZero() {
-        Point result = ImageProcessor.contains(pic7, pic0);
+        ImageProcessor processor = new ImageProcessor();
+        Point result = processor.contains(pic7, pic0);
         assertNotNull(result);
         assertEquals(350, result.getX(), 0);
         assertEquals(465, result.getY(), 0);
@@ -78,7 +83,8 @@ public class ImageProcessorTest {
 
     @Test
     public void containsExTest() throws IOException {
-        Point result = ImageProcessor.containsEx(pic8, pic9);
+        ImageProcessor processor = new ImageProcessor();
+        Point result = processor.containsEx(pic8, pic9);
         assertNotNull(result);
         assertEquals(5, result.getX(), 0);
         assertEquals(2, result.getY(), 0);
@@ -87,11 +93,12 @@ public class ImageProcessorTest {
     @Test
     @Ignore
     public void firstMethodLoadTest() {
+        ImageProcessor processor = new ImageProcessor();
         int result = 0;
         int cases = 10;
         for (int i = 0; i < cases; i++) {
             Instant start = Instant.now();
-            Point point = ImageProcessor.contains(pic1, pic3);
+            Point point = processor.contains(pic1, pic3);
             Duration between = Duration.between(start, Instant.now());
             result += between.toMillis();
             assertNotNull(point);
@@ -103,11 +110,12 @@ public class ImageProcessorTest {
     @Test
     @Ignore
     public void secondMethodLoadTest() throws IOException {
+        ImageProcessor processor = new ImageProcessor();
         int result = 0;
         int cases = 10;
         for (int i = 0; i < cases; i++) {
             Instant start = Instant.now();
-            Point point = ImageProcessor.containsEx(pic8, pic9);
+            Point point = processor.containsEx(pic8, pic9);
             Duration between = Duration.between(start, Instant.now());
             result += between.toMillis();
             assertNotNull(point);

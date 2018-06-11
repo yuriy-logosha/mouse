@@ -9,10 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.round;
 
@@ -20,19 +18,29 @@ public class CommandProcessor {
 
     private static final Logger logger = Logger.getLogger(CommandProcessor.class.getName());
     private static final String NOT_FOUND = "Not found";
+    private final ImageProcessor processor;
     private MouseController mouseController;
     private Map<String, BufferedImage> cache = new HashMap();
 
-    public CommandProcessor(MouseController mouseController) {
+    public CommandProcessor(MouseController mouseController, ImageProcessor processor) {
         this.mouseController = mouseController;
+        this.processor = processor;
     }
 
-    public String process(String command) throws AWTException, IOException {
+    public String process(String command) {
         String[] commandLine = command.split(" ");
         String commandName = commandLine[0];
         commandLine = Arrays.copyOfRange(commandLine, 1, commandLine.length);
         if (command != null) {
-            return execute(commandName, commandLine);
+            try {
+                String result = execute(commandName, commandLine);
+                return result;
+            } catch (AWTException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return "";
         }
         return "";
     }
@@ -117,8 +125,8 @@ public class CommandProcessor {
                 || "containsEx".equalsIgnoreCase(command) || "containsInScreenEx".equalsIgnoreCase(command)) {
             BufferedImage rightImage = getImage(line[0]);
             Point point = command.endsWith("Ex")?
-                            ImageProcessor.containsEx(getScreenCapture(), rightImage):
-                            ImageProcessor.contains(getScreenCapture(), rightImage);
+                    processor.containsEx(getScreenCapture(), rightImage):
+                    processor.contains(getScreenCapture(), rightImage);
             if (point != null) {
                 long x = round(point.getX());
                 long y = round(point.getY());
@@ -129,12 +137,12 @@ public class CommandProcessor {
                 return NOT_FOUND;
             }
         } else if ("containsAll".equalsIgnoreCase(command)) {
-            BufferedImage[] images = Arrays.stream(line)
-                    .map(s -> getImage(s)).toArray(BufferedImage[]::new);
 
-
-
-            Point point = ImageProcessor.contains(getScreenCapture(), images);
+            Point point = processor
+                    .contains(getScreenCapture(), Arrays
+                    .stream(line)
+                    .map(s -> getImage(s))
+                    .toArray(BufferedImage[]::new));
             if (point != null) {
                 long x = round(point.getX());
                 long y = round(point.getY());
@@ -150,7 +158,7 @@ public class CommandProcessor {
             int finishX = Integer.valueOf(line[3]);
             int finishY = Integer.valueOf(line[4]);
 
-            Point point = ImageProcessor.contains(getScreenCapture(new Rectangle(beginX, beginY, finishX, finishY)), getImage(line[0]));
+            Point point = processor.contains(getScreenCapture(new Rectangle(beginX, beginY, finishX, finishY)), getImage(line[0]));
             if(point != null) {
                 long roundX = round(point.getX() + beginX);
                 long roundY = round(point.getY() + beginY);
@@ -182,7 +190,7 @@ public class CommandProcessor {
                 e.printStackTrace();
             }
         }  else if ("print".equalsIgnoreCase(command)) {
-            ImageProcessor.printImage(getImage(line[0]));
+            processor.printImage(getImage(line[0]));
         }
         return "";
     }
@@ -193,10 +201,10 @@ public class CommandProcessor {
         if (img == null) {
             try {
                 img = ImageIO.read(new File(imgName));
+                cache.put(imgName, img);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            cache.put(imgName, img);
         }
 
         return img;

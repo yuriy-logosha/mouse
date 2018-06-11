@@ -13,7 +13,7 @@ public class ImageProcessor {
 
     private final static Logger logger = Logger.getLogger(ImageProcessor.class.getName());
 
-    public static Point contains(BufferedImage leftImage, BufferedImage[] images) {
+    public Point contains(BufferedImage leftImage, BufferedImage[] images) {
         Point point = null;
         for (BufferedImage image : images) {
             point = contains(leftImage, image);
@@ -24,7 +24,7 @@ public class ImageProcessor {
         return point;
     }
 
-    public static Point contains(BufferedImage leftImage, BufferedImage rightImage) {
+    public Point contains(BufferedImage leftImage, BufferedImage rightImage) {
         XYV firstNotZeroedRightValue = getFirstNotZeroedValue(rightImage);
         for (int hY = 0; hY < leftImage.getHeight(); hY++) {
             for (int hX = 0; hX < leftImage.getWidth(); hX++) {
@@ -40,7 +40,7 @@ public class ImageProcessor {
         return null;
     }
 
-    private static boolean isPictureMatch(XYV xyv, BufferedImage leftImage, BufferedImage rightImage, int hX, int hY) {
+    private boolean isPictureMatch(XYV xyv, BufferedImage leftImage, BufferedImage rightImage, int hX, int hY) {
         int shiftX = hX - xyv.x;
         int shiftY = hY - xyv.y;
         for (int nY = xyv.y; nY < rightImage.getHeight(); nY++) {
@@ -58,13 +58,13 @@ public class ImageProcessor {
         return true;
     }
 
-    private static boolean isPointInRange(XYV firstValueLeft, XYV firstValueRight) {
+    private boolean isPointInRange(XYV firstValueLeft, XYV firstValueRight) {
         return beetween(-3, 3, firstValueLeft.rgb.r - firstValueRight.rgb.r)
                 && beetween(-3, 3, firstValueLeft.rgb.g - firstValueRight.rgb.g)
                 && beetween(-3, 3, firstValueLeft.rgb.b - firstValueRight.rgb.b);
     }
 
-    private static XYV getFirstNotZeroedValue(BufferedImage rightImage) {
+    private XYV getFirstNotZeroedValue(BufferedImage rightImage) {
         for (int y = 0; y < rightImage.getHeight(); y++) {
             for (int x = 0; x < rightImage.getWidth() && rightImage.getRGB(y, x) != 0; x++) {
                 return buildXYV(rightImage, y, x);
@@ -73,7 +73,7 @@ public class ImageProcessor {
         return null;
     }
 
-    private static XYV buildXYV(BufferedImage img, int x, int y) {
+    private XYV buildXYV(BufferedImage img, int x, int y) {
         try {
             Object dataElements = img.getRaster().getDataElements(x, y, null);
             int value1 = img.getColorModel().getRed(dataElements);
@@ -87,11 +87,11 @@ public class ImageProcessor {
         return null;
     }
 
-    private static boolean beetween(int left, int right, int value) {
+    private boolean beetween(int left, int right, int value) {
         return value >= left && value <= right;
     }
 
-    public static Point containsEx(BufferedImage bigImage, BufferedImage subImage) {
+    public Point containsEx(BufferedImage bigImage, BufferedImage subImage) {
 
         XYV[] dots = analizeImage(subImage);
 
@@ -105,7 +105,7 @@ public class ImageProcessor {
         return null;
     }
 
-    private static XYV[] analizeImage(BufferedImage subImage){
+    private XYV[] analizeImage(BufferedImage subImage){
         List<XYV> ldots = new ArrayList();
 
         for(int y = 0; y < subImage.getHeight(); y++) {
@@ -125,7 +125,7 @@ public class ImageProcessor {
         return result;
     }
 
-    private static boolean checkKeyPoints(XYV[] dots, BufferedImage bigImage, int hX, int hY) {
+    private boolean checkKeyPoints(XYV[] dots, BufferedImage bigImage, int hX, int hY) {
         XYV xyv = buildXYV(bigImage, hX, hY);
         if(!xyv.rgb.equals(dots[0].rgb)){
             return false;

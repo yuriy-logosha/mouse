@@ -13,18 +13,23 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class CommandProcessorTest {
 
     private MouseController mc;
     private Robot robor;
     private CommandProcessor cp;
+    private ImageProcessor ip;
 
     @Before
     public void setUp() throws AWTException {
         robor = new Robot();
         mc = new MouseController(robor);
-        cp = new CommandProcessor(mc);
+        ip = mock(ImageProcessor.class);
+        when(ip.contains(any(BufferedImage.class), any(BufferedImage.class))).thenReturn(null);
+        cp = new CommandProcessor(mc, ip);
     }
 
     @Test
@@ -55,8 +60,22 @@ public class CommandProcessorTest {
     @Test
     public void testContainsAll () throws IOException, AWTException {
         BufferedImage bi = getResource("1_tr.png");
-        String result = cp.process("containsAll src/test/resources/sub-picture.png src/test/resources/sub-picture2.png");
+        String result = cp.process("containsAll src/test/resources/sub-picture.png src/test/resources/sub-picture2.png src/test/resources/sub-picture3.png");
         Assert.assertTrue(result.equals("Not found"));
+    }
+
+    @Test
+    public void testContainsAllException () throws IOException, AWTException {
+        ImageProcessor ip = mock(ImageProcessor.class);
+        when(ip.contains(any(BufferedImage.class), any(BufferedImage.class))).thenReturn(null);
+        when(ip.contains(any(BufferedImage.class), any(BufferedImage[].class))).thenCallRealMethod();
+
+        CommandProcessor cp = new CommandProcessor(mc, ip);
+
+        String result = cp.process("containsAll src/test/resources/sub-picture.png src/test/resources/sub-picture2.png src/test/resources/sub-picture3.png");
+        Assert.assertTrue(result.equals("Not found"));
+        verify(ip, times(1)).contains(any(BufferedImage.class), any(BufferedImage[].class));
+        verify(ip, times(3)).contains(any(BufferedImage.class), any(BufferedImage.class));
     }
 
     private static BufferedImage getResource(String name) throws IOException {
