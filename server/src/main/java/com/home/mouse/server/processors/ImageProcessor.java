@@ -17,6 +17,9 @@ public class ImageProcessor {
         Point point = null;
         for (BufferedImage image : images) {
             point = contains(leftImage, image);
+            if (point != null) {
+                return point;
+            }
         }
         return point;
     }
