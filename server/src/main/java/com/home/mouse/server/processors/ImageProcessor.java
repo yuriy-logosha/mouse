@@ -13,7 +13,7 @@ public class ImageProcessor {
 
     private final static Logger logger = Logger.getLogger(ImageProcessor.class.getName());
 
-    public static Point contains(BufferedImage leftImage, List<BufferedImage> images) {
+    public static Point contains(BufferedImage leftImage, BufferedImage[] images) {
         Point point = null;
         for (BufferedImage image : images) {
             point = contains(leftImage, image);

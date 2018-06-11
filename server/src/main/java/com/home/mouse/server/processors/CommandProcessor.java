@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.round;
 
@@ -128,11 +129,11 @@ public class CommandProcessor {
                 return NOT_FOUND;
             }
         } else if ("containsAll".equalsIgnoreCase(command)) {
-            List<BufferedImage> images = new ArrayList();
-            StringTokenizer st = new StringTokenizer(line[0]);
-            while (st.hasMoreTokens()) {
-                images.add(getImage(st.nextToken()));
-            }
+            BufferedImage[] images = Arrays.stream(line)
+                    .map(s -> getImage(s)).toArray(BufferedImage[]::new);
+
+
+
             Point point = ImageProcessor.contains(getScreenCapture(), images);
             if (point != null) {
                 long x = round(point.getX());
@@ -186,11 +187,15 @@ public class CommandProcessor {
         return "";
     }
 
-    private BufferedImage getImage(String imgName) throws IOException {
+    private BufferedImage getImage(String imgName) {
         BufferedImage img = cache.get(imgName);
 
         if (img == null) {
-            img = ImageIO.read(new File(imgName));
+            try {
+                img = ImageIO.read(new File(imgName));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             cache.put(imgName, img);
         }
 
