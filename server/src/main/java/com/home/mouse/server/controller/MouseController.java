@@ -6,6 +6,7 @@ import com.home.mouse.server.processors.ImageProcessor;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,26 +51,21 @@ public class MouseController {
                 DataInputStream in = new DataInputStream(sin);
                 DataOutputStream out = new DataOutputStream(sout);
 
-                String line = null;
+                String line = in.readUTF();
 
-                try {
-                    line = in.readUTF();
+                logger.log(Level.INFO, "Received: {0}", new Object[]{line});
 
-                    logger.log(Level.INFO, "Received: {0}", new Object[]{line});
-
-                    if (line.contains(";")) {
-                        String[] commands = line.split(";");
-                        for (String command : commands) {
-                            out.writeUTF(processor.process(command.trim()));
-                        }
-                    } else {
-                        out.writeUTF(processor.process(line));
+                StringTokenizer tokenizer = new StringTokenizer(line, ";");
+                while (tokenizer.hasMoreElements()) {
+                    String command = tokenizer.nextToken();
+                    String result = processor.process(command.trim());
+                    try {
+                        out.writeUTF(result);
+                        out.writeUTF("Done");
+                        out.flush();
+                    } catch (SocketException e) {
+                        logger.log(Level.FINER, "Exception occurred while sending result back.", e);
                     }
-                    out.writeUTF("Done");
-                    out.flush();
-
-                } catch (IOException | NumberFormatException e) {
-                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {

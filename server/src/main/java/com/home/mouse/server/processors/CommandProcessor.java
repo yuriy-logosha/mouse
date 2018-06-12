@@ -140,9 +140,10 @@ public class CommandProcessor {
 
             Point point = processor
                     .contains(getScreenCapture(), Arrays
-                    .stream(line)
-                    .map(s -> getImage(s))
-                    .toArray(BufferedImage[]::new));
+                        .stream(line)
+                            .filter(s -> !s.isEmpty())
+                            .map(s -> getImage(s))
+                            .toArray(BufferedImage[]::new));
             if (point != null) {
                 long x = round(point.getX());
                 long y = round(point.getY());
@@ -203,7 +204,7 @@ public class CommandProcessor {
                 img = ImageIO.read(new File(imgName));
                 cache.put(imgName, img);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.FINER, "File doesnt exists.", imgName);
             }
         }
 

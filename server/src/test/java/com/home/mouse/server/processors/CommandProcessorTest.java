@@ -72,7 +72,7 @@ public class CommandProcessorTest {
 
         CommandProcessor cp = new CommandProcessor(mc, ip);
 
-        String result = cp.process("containsAll src/test/resources/sub-picture.png src/test/resources/sub-picture2.png src/test/resources/sub-picture3.png");
+        String result = cp.process("containsAll src/test/resources/sub-picture.png src/test/resources/sub-picture2.png  src/test/resources/sub-picture3.png");
         Assert.assertTrue(result.equals("Not found"));
         verify(ip, times(1)).contains(any(BufferedImage.class), any(BufferedImage[].class));
         verify(ip, times(3)).contains(any(BufferedImage.class), any(BufferedImage.class));
