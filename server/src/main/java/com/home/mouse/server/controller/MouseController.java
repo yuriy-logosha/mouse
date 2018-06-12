@@ -53,23 +53,23 @@ public class MouseController {
 
                 String line = in.readUTF();
 
-                logger.log(Level.INFO, "Received: {0}", new Object[]{line});
+                logger.log(Level.INFO, "Received: {0}", line);
 
                 StringTokenizer tokenizer = new StringTokenizer(line, ";");
                 while (tokenizer.hasMoreElements()) {
-                    String command = tokenizer.nextToken();
-                    String result = processor.process(command.trim());
+                    String command = tokenizer.nextToken().trim();
+                    String result = processor.process(command);
                     try {
                         out.writeUTF(result);
                         out.writeUTF("Done");
                         out.flush();
-                    } catch (SocketException e) {
+                    } catch (IOException e) {
                         logger.log(Level.FINER, "Exception occurred while sending result back.", e);
                     }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.FINER, "General exception: ", e);
         }
     }
 }

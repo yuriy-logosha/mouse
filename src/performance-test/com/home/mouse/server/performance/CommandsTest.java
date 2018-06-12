@@ -1,5 +1,6 @@
 package com.home.mouse.server.performance;
 
+import com.home.mouse.client.Command;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,19 +16,14 @@ public class CommandsTest {
     private final static int serverPort = 6666;
     private Socket socket;
 
-    private DataOutputStream out;
-    private DataInputStream in;
+    Command cmd = null;
 
     @Before
     public void setUp() throws Exception {
         InetAddress ipAddress = InetAddress.getByName(address);
         socket = new Socket(ipAddress, serverPort);
 
-        InputStream sin = socket.getInputStream();
-        OutputStream sout = socket.getOutputStream();
-
-        in = new DataInputStream(sin);
-        out = new DataOutputStream(sout);
+        Command cmd = new Command();
     }
 
     @Test
@@ -83,8 +79,7 @@ public class CommandsTest {
 
     private void sendCommand(String command) {
         try {
-            out.writeUTF(command);
-            out.flush();
+            cmd.send(socket, command.split(" "));
         } catch (IOException e) {
             e.printStackTrace();
         }
