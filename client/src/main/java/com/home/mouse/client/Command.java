@@ -8,11 +8,27 @@ import java.util.Arrays;
 public class Command {
 
     public static String send(Socket socket, String[] args) throws IOException {
+
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-        out.writeUTF(Arrays.toString(args));
+        out.writeUTF(String.join(" ", args));
         out.flush();
-        return (new DataInputStream(socket.getInputStream())).readUTF();
+        String result = "";
+        InputStream in = socket.getInputStream();
+        DataInputStream din = new DataInputStream(in);
+        try {
+            while (true) {
+                String portion = din.readUTF();
+                if ("Done".equals(portion)){
+                    return result;
+                }
+                result += portion;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return result;
+        }
+
     }
 
     public static void main(String[] args) throws IOException {

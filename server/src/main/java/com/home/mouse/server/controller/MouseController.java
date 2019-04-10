@@ -40,7 +40,7 @@ public class MouseController {
     public void start() {
         try {
             ServerSocket ss = new ServerSocket(port);
-            logger.log(Level.INFO, "Waiting for a command...");
+            logger.info("Waiting for a command...");
 
             while (!isExit) {
                 Socket socket = ss.accept();
@@ -59,13 +59,13 @@ public class MouseController {
                 while (tokenizer.hasMoreElements()) {
                     String command = tokenizer.nextToken().trim();
                     String result = processor.process(command);
-                    try {
-                        out.writeUTF(result);
-                        out.writeUTF("Done");
-                        out.flush();
-                    } catch (IOException e) {
-                        logger.log(Level.FINER, "Exception occurred while sending result back.", e);
-                    }
+                    out.writeUTF(result);
+                }
+                try {
+                    out.writeUTF("Done");
+                    out.flush();
+                } catch (IOException e) {
+                    logger.log(Level.FINER, "Exception occurred while sending result back.", e);
                 }
             }
         } catch (IOException e) {

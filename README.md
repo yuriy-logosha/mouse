@@ -13,3 +13,8 @@ Tested on:
 - Windows 10
 - Ubintu
 - Cent OS 6, 7
+
+
+Launching from IDE use system variable logging:
+
+\-Djava.util.logging.config.file=server/src/main/resources/logging.properties

@@ -103,11 +103,12 @@ public class CommandProcessor {
             robot.delay(Integer.valueOf(line[0]));
 
         } else if ("screen2File".equalsIgnoreCase(command)) {
+            String fileName = line.length >0?line[0]:"screen.png";
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
-            ImageIO.write(capture, "png", new File(line[0]));
-            info("Captured to file: {0}",
-                    new Object[]{line[0]});
+            File file = new File(fileName);
+            ImageIO.write(capture, "png", file);
+            info("Captured to file: {0}", new String[]{file.getPath()});
 
         } else if ("screenRange2File".equalsIgnoreCase(command)) {
             int x = Integer.valueOf(line[1]);
@@ -204,7 +205,7 @@ public class CommandProcessor {
                 img = ImageIO.read(new File(imgName));
                 cache.put(imgName, img);
             } catch (IOException e) {
-                logger.log(Level.FINER, "File doesnt exists.", imgName);
+                logger.log(Level.FINER, "File doesn't exists.", imgName);
             }
         }
 

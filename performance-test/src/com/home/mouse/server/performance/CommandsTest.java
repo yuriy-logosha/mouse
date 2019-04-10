@@ -8,22 +8,17 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class CommandsTest {
 
     private final static String address = "127.0.0.1";
     private final static int serverPort = 6666;
-    private Socket socket;
-
-    Command cmd = null;
-
+    private InetAddress ipAddress;
     @Before
     public void setUp() throws Exception {
-        InetAddress ipAddress = InetAddress.getByName(address);
-        socket = new Socket(ipAddress, serverPort);
-
-        Command cmd = new Command();
+        ipAddress = InetAddress.getByName(address);
     }
 
     @Test
@@ -61,8 +56,17 @@ public class CommandsTest {
 
     @Test
     public void contains10Times() {
+        sendCommand("screenRange2File screen.png 10 10 20 20");
         long start = System.currentTimeMillis();
-        repeateCommand(1000, "contains server/src/test/resources/sub-picture2.png");
+        repeateCommand(10, "contains screen.png");
+        long end = System.currentTimeMillis() - start;
+        assertTrue(end <= 2000);
+    }
+
+    @Test
+    public void screenRange2File() {
+        long start = System.currentTimeMillis();
+        sendCommand("screenRange2File screen.png 10 10 20 20");
         long end = System.currentTimeMillis() - start;
         assertTrue(end <= 300);
     }
@@ -78,10 +82,20 @@ public class CommandsTest {
     }
 
     private void sendCommand(String command) {
+        Socket sct = null;
         try {
-            cmd.send(socket, command.split(" "));
+            sct = new Socket(ipAddress, serverPort);
+            Command.send(sct, command.split(" "));
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (sct != null) {
+                try {
+                    sct.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
