@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd /Users/yura/IdeaProjects/mouse/client/target/classes
+cd client/target/classes
 RESULT=$(java com/home/mouse/client/Command show)
 
 _RESULT=($RESULT)

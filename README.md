@@ -16,5 +16,4 @@ Tested on:
 
 
 Launching from IDE use system variable logging:
-
-\-Djava.util.logging.config.file=server/src/main/resources/logging.properties
+-Djava.util.logging.config.file=server/src/main/resources/logging.properties
