@@ -158,7 +158,7 @@ public class CommandProcessor {
             }
 
             Point point = processor
-                    .contains(getScreenCapture(new Rectangle(beginX, beginY, finishX - beginX, finishY - beginY)), Arrays
+                    .contains(getScreenCapture(new Rectangle(beginX, beginY, finishY - beginY, finishX - beginX)), Arrays
                             .stream(line)
                             .filter(pic -> !pic.isEmpty())
                             .map(pic -> getImage(pic))
