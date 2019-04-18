@@ -144,13 +144,21 @@ public class CommandProcessor {
                 return buildResponse(NOT_FOUND);
             }
         } else if (CONTAINS_ALL_IN_RANGE.getValue().equalsIgnoreCase(command)) {
-            int beginX = Integer.valueOf(line[1]);
-            int beginY = Integer.valueOf(line[2]);
-            int finishX = Integer.valueOf(line[3]);
-            int finishY = Integer.valueOf(line[4]);
+            int beginX = Integer.valueOf(line[0]);
+            int beginY = Integer.valueOf(line[1]);
+            int finishX = Integer.valueOf(line[2]);
+            int finishY = Integer.valueOf(line[3]);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+            if (finishX < beginX) {
+                finishX = screenSize.height;
+            }
+            if (finishY < beginY) {
+                finishY = screenSize.width;
+            }
 
             Point point = processor
-                    .contains(getScreenCapture(new Rectangle(beginX, beginY, finishX, finishY)), Arrays
+                    .contains(getScreenCapture(new Rectangle(beginX, beginY, finishX - beginX, finishY - beginY)), Arrays
                             .stream(line)
                             .filter(pic -> !pic.isEmpty())
                             .map(pic -> getImage(pic))
@@ -164,9 +172,17 @@ public class CommandProcessor {
             int beginX = Integer.valueOf(line[1]);
             int beginY = Integer.valueOf(line[2]);
             int finishX = Integer.valueOf(line[3]);
-            int finishY = Integer.valueOf(line[4]);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-            Point point = processor.contains(getScreenCapture(new Rectangle(beginX, beginY, finishX, finishY)), getImage(line[0]));
+            if (finishX < beginX) {
+                finishX = screenSize.height;
+            }
+            int finishY = Integer.valueOf(line[4]);
+            if (finishY < beginY) {
+                finishY = screenSize.width;
+            }
+
+            Point point = processor.contains(getScreenCapture(new Rectangle(beginX, beginY, finishX - beginX, finishY - beginY)), getImage(line[0]));
             if(point != null) {
                 return buildResponse(FOUND, new Long[] {round(point.getX()), round(point.getY())});
             } else {
