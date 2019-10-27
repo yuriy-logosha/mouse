@@ -162,7 +162,7 @@ public class ImageProcessorTest {
     @Ignore
     public void printImage() throws IOException {
         ImageProcessor.printImageRGB(pic10, 610, 765);
-        ImageProcessor.printImageRGB(pic12Team co-located in several locations, 0, 0);
+        ImageProcessor.printImageRGB(pic12, 0, 0);
     }
 
 
