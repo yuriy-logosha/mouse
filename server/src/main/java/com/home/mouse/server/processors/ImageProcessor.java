@@ -1,46 +1,81 @@
 package com.home.mouse.server.processors;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.Raster;
-import java.util.ArrayList;
+import java.awt.image.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.home.mouse.server.TemplatesCache;
+import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
+import javax.imageio.ImageIO;
+
+import static java.lang.Math.round;
 
 public class ImageProcessor {
 
     private final static Logger logger = Logger.getLogger(ImageProcessor.class.getName());
 
-    public Point contains(BufferedImage leftImage, BufferedImage[] images) {
-        Point point = null;
-        for (BufferedImage image : images) {
-            point = contains(leftImage, image);
+    Boolean use_mask = false;
+    Mat img = new Mat(), templ = new Mat();
+    Mat mask = new Mat();
+
+    private static Map<String, BufferedImage> cache = new HashMap();
+
+    int match_method = Imgproc.TM_SQDIFF;
+    Boolean method_accepts_mask = (Imgproc.TM_SQDIFF == match_method || match_method == Imgproc.TM_CCORR_NORMED);
+
+    public org.opencv.core.Point contains(BufferedImage leftImage, String[] images) throws IOException {
+        for (String image : images) {
+            org.opencv.core.Point point = containsEx(leftImage, image);
             if (point != null) {
                 return point;
-            }
-        }
-        return point;
-    }
-
-    public Point contains(BufferedImage leftImage, BufferedImage rightImage) {
-        XYV firstNotZeroedRightValue = getFirstNotZeroedValue(rightImage);
-        for (int hY = 0; hY < leftImage.getHeight(); hY++) {
-            for (int hX = 0; hX < leftImage.getWidth(); hX++) {
-
-                XYV leftValue = buildXYV(leftImage, hX, hY);
-
-                if (isPointInRange(leftValue, firstNotZeroedRightValue)
-                        && isPictureMatch(firstNotZeroedRightValue, leftImage, rightImage, hX, hY)) {
-                    return new Point(hX, hY);
-                }
             }
         }
         return null;
     }
 
+    public org.opencv.core.Point contains(BufferedImage leftImage, BufferedImage[] images) throws IOException {
+        for (BufferedImage image : images) {
+            org.opencv.core.Point point = contains(leftImage, image);
+            if (point != null) {
+                return point;
+            }
+        }
+        return null;
+    }
+
+    public org.opencv.core.Point contains(BufferedImage leftImage, BufferedImage rightImage) {
+        Objects.requireNonNull(leftImage);
+        Objects.requireNonNull(rightImage);
+        XYV notEmptyValue1 = getFirstNotZeroedValue(rightImage);
+
+        for (int hY = 0; hY < leftImage.getHeight(); hY++) {
+            for (int hX = 0; hX < leftImage.getWidth(); hX++) {
+
+                XYV leftValue = buildXYV(leftImage, hX, hY);
+
+                if (leftValue.isSimilar(notEmptyValue1)) {
+                    if (isPictureMatch(notEmptyValue1, leftImage, rightImage, hX, hY)) {
+                        return new org.opencv.core.Point(hX, hY);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     private boolean isPictureMatch(XYV xyv, BufferedImage leftImage, BufferedImage rightImage, int hX, int hY) {
+        int skippedLimit = (rightImage.getHeight() * rightImage.getWidth())/10;
+        int skipped = 0;
         int shiftX = hX - xyv.x;
         int shiftY = hY - xyv.y;
         for (int nY = xyv.y; nY < rightImage.getHeight(); nY++) {
@@ -49,25 +84,38 @@ public class ImageProcessor {
                     return false;
                 }
                 XYV leftValue = buildXYV(leftImage,nX + shiftX, nY + shiftY);
-                XYV rightValue = buildXYV(rightImage, nX, nY);
-                if (!isPointInRange(leftValue, rightValue)) {
-                    return false;
+
+                XYV rightValue = getAddition(rightImage, nX, nY);
+
+                if (!leftValue.isSimilar(rightValue)) {
+                    if (skippedLimit > skipped) {
+                        skipped +=1;
+                    } else {
+                        return false;
+                    }
                 }
             }
         }
         return true;
     }
 
-    private boolean isPointInRange(XYV firstValueLeft, XYV firstValueRight) {
-        return beetween(-3, 3, firstValueLeft.rgb.r - firstValueRight.rgb.r)
-                && beetween(-3, 3, firstValueLeft.rgb.g - firstValueRight.rgb.g)
-                && beetween(-3, 3, firstValueLeft.rgb.b - firstValueRight.rgb.b);
+    Map<String, XYV> additionsMap = new HashMap();
+
+    private XYV getAddition(BufferedImage rightImage, int nX, int nY) {
+        String key = nX+":"+nY;
+        XYV v = additionsMap.get(key);
+        if (v != null) {
+            return v;
+        }
+        v = buildXYV(rightImage, nX, nY);
+        additionsMap.put(key, v);
+        return v;
     }
 
     private XYV getFirstNotZeroedValue(BufferedImage rightImage) {
         for (int y = 0; y < rightImage.getHeight(); y++) {
             for (int x = 0; x < rightImage.getWidth() && rightImage.getRGB(y, x) != 0; x++) {
-                return buildXYV(rightImage, y, x);
+                return getAddition(rightImage, y, x);
             }
         }
         return null;
@@ -87,29 +135,28 @@ public class ImageProcessor {
         return null;
     }
 
-    private boolean beetween(int left, int right, int value) {
-        return value >= left && value <= right;
-    }
+    public org.opencv.core.Point containsEx(BufferedImage bigImage, BufferedImage subImage) {
 
-    public Point containsEx(BufferedImage bigImage, BufferedImage subImage) {
-
-        XYV[] dots = analizeImage(subImage);
+        List<XYV> dots = analyzeImage(subImage);
 
         for (int hY = 0; hY < bigImage.getHeight() - subImage.getHeight(); hY++) {
             for (int hX = 0; hX < bigImage.getWidth() - subImage.getWidth(); hX++) {
                 if (checkKeyPoints(dots, bigImage, hX, hY)) {
-                    return new Point(hX, hY);
+                    return new org.opencv.core.Point(hX, hY);
                 }
             }
         }
         return null;
     }
 
-    private XYV[] analizeImage(BufferedImage subImage){
+    private List<XYV> analyzeImage(BufferedImage subImage) {
         List<XYV> ldots = new ArrayList();
 
-        for(int y = 0; y < subImage.getHeight(); y++) {
-            for(int x = 0; x < subImage.getWidth(); x++) {
+
+//        int incY = Math.round(subImage.getHeight()/10);
+//        int incX = Math.round(subImage.getWidth()/10);
+        for(int y = 0; y < subImage.getHeight(); y+=1) {
+            for(int x = 0; x < subImage.getWidth(); x+=1) {
                 int value = subImage.getRGB(x, y);
                 if(value != 0) {
                     ldots.add(buildXYV(subImage, x, y));
@@ -117,48 +164,37 @@ public class ImageProcessor {
             }
         }
 
-        XYV[] result = new XYV[ldots.size()];
-        for (int idx = 0; idx < ldots.size(); idx++) {
-            result[idx] = ldots.get(idx);
-        }
+        return ldots;
 
-        return result;
+//        XYV[] result = new XYV[ldots.size()];
+//        for (int idx = 0; idx < ldots.size(); idx++) {
+//            result[idx] = ldots.get(idx);
+//        }
+//
+//        return result;
     }
 
-    private boolean checkKeyPoints(XYV[] dots, BufferedImage bigImage, int hX, int hY) {
-        XYV xyv = buildXYV(bigImage, hX, hY);
-        if(!xyv.rgb.equals(dots[0].rgb)){
-            return false;
-        }
-        int shiftX = hX - dots[0].x;
-        int shiftY = hY - dots[0].y;
+    private boolean checkKeyPoints(List<XYV> dots, BufferedImage bigImage, int hX, int hY) {
+        XYV zero = dots.get(0);
+        XYV xyv;
+        int shiftX = hX - zero.x;
+        int shiftY = hY - zero.y;
 
 
-        for (int i = 1; i < dots.length; i++) {
-            xyv = buildXYV(bigImage, dots[i].x + shiftX, dots[i].y + shiftY);
-            if(!xyv.rgb.equals(dots[i].rgb)){
+        for (XYV v : dots) {
+            xyv = buildXYV(bigImage, v.x + shiftX, v.y + shiftY);
+            if(!xyv.rgb.isSimilar(v.rgb)){
                 return false;
             }
+            System.out.println(shiftX + " " + shiftY + " " + xyv.rgb);
+            System.out.println(shiftX + " " + shiftY + " " + v.rgb);
         }
         return true;
     }
 
-    private static boolean checkAll(BufferedImage bigImage, BufferedImage subImage, int x1, int y1) {
-        for (int nY = 0; nY < subImage.getHeight(); nY++) {
-            for (int nX = 0; nX < subImage.getWidth(); nX++) {
-                int leftVal = bigImage.getRGB(x1 + nX, y1 + nY);
-                int rightVal = subImage.getRGB(nX, nY);
-                if (bigImage.getRGB(x1 + nX, y1 + nY) != subImage.getRGB(nX, nY)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public static void printImageRGB(BufferedImage image) {
-        int max = 300;
+    public static void printImageRGB(BufferedImage image, int startX, int startY) {
+        int maxH = 20;
+        int maxW = 80;
         ColorModel colorModel = image.getColorModel();
         Raster raster = image.getRaster();
 
@@ -168,13 +204,13 @@ public class ImageProcessor {
 
         System.out.print("____");
 
-        for (int hX = 0; hX < getMin(image.getWidth(), max); hX++) {
+        for (int hX = startX; hX < getMin(image.getWidth(), maxW + startX); hX++) {
             System.out.print(("         " + hX + " ").substring(String.valueOf(hX).length()));
         }
         System.out.println("|");
-        for (int hY = 0; hY < getMin(image.getHeight(), max); hY++) {
+        for (int hY = startY; hY < getMin(image.getHeight(), maxH+startY); hY++) {
             System.out.print(("000" + hY).substring(String.valueOf(hY).length()) + "|");
-            for (int hX = 0; hX < ((image.getWidth() >= max) ? max : image.getWidth()); hX++) {
+            for (int hX = startX; hX < ((image.getWidth() >= maxW + startX) ? maxW + startX : image.getWidth()); hX++) {
                 Object dataElements = raster.getDataElements(hX, hY, null);
                 int r = colorModel.getRed(dataElements);
                 int g = colorModel.getGreen(dataElements);
@@ -252,7 +288,70 @@ public class ImageProcessor {
         }
     }
 
+    public org.opencv.core.Point containsEx(BufferedImage screen, String fileName) throws IOException {
+        img = bufferedImage2Mat(screen);
+        templ = TemplatesCache.getImage(fileName);
+        Objects.requireNonNull(img);
+        Objects.requireNonNull(templ);
+        return matchingMethod(fileName);
+    }
+
+    public static Mat bufferedImage2Mat(BufferedImage image) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", byteArrayOutputStream);
+        byteArrayOutputStream.flush();
+        return Imgcodecs.imdecode(new MatOfByte(byteArrayOutputStream.toByteArray()), Imgcodecs.IMREAD_UNCHANGED);
+    }
+
+    public static BufferedImage getImage(String imgName) {
+        BufferedImage img = cache.get(imgName);
+
+        if (img == null) {
+            try {
+                img = ImageIO.read(new File(imgName));
+                cache.put(imgName, img);
+            } catch (IOException e) {
+                logger.log(Level.FINER, "File doesn't exists.", imgName);
+            }
+        }
+
+        return img;
+    }
+
+    private org.opencv.core.Point matchingMethod(String fileName) {
+        Mat result = new Mat();
+        int result_cols = img.cols() - templ.cols() + 1;
+        int result_rows = img.rows() - templ.rows() + 1;
+        result.create(result_rows, result_cols, CvType.CV_8UC1);
+        if (use_mask && method_accepts_mask) {
+            Imgproc.matchTemplate(img, templ, result, match_method, mask);
+        } else {
+            Imgproc.matchTemplate(img, templ, result, match_method);
+        }
+        //Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+        org.opencv.core.Point matchLoc;
+        int val = 0;
+        Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
+        if (method_accepts_mask) {
+            matchLoc = mmr.minLoc;
+            val = (int) mmr.minVal;
+            logger.log(Level.FINE, "{0} - Probability: {1} {2} {3}", new String[] {fileName, String.valueOf(val/2000), String.valueOf(round(matchLoc.x)), String.valueOf(round(matchLoc.y))});
+            if (val/2000 <= 700) {
+                return matchLoc;
+            }
+        } else {
+            matchLoc = mmr.maxLoc;
+            val = (int) mmr.maxVal;
+            logger.log(Level.FINE, "{0} - Probability: {1} {2} {3}", new String[] {fileName, String.valueOf(val), String.valueOf(round(matchLoc.x)), String.valueOf(round(matchLoc.y))});
+            if (val >= 4) {
+                return matchLoc;
+            }
+        }
+        return null;
+    }
+
     static class RGB {
+        final int precise = 50;
         int r;
         int g;
         int b;
@@ -273,33 +372,57 @@ public class ImageProcessor {
                     b == rgb.b;
         }
 
+        public boolean isSimilar(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RGB rgb = (RGB) o;
+            return beetween(precise*-1, precise, r - rgb.r)
+                    && beetween(precise*-1, precise, g - rgb.g)
+                    && beetween(precise*-1, precise, b - rgb.b);
+        }
+
+        private boolean beetween(int left, int right, int value) {
+            return value >= left && value <= right;
+        }
+
+
         @Override
         public int hashCode() {
             return Objects.hash(r, g, b);
         }
+
+        @Override
+        public String toString() {
+            return r + " " + g + " " + b;
+        }
     }
 
-    static class XY {
+    static class XYV {
+        final int precise = 3;
+        final int value;
+        RGB rgb;
         final int x;
         final int y;
 
-        public XY(int x, int y) {
+        public XYV(int x, int y, int value) {
             this.x = x;
             this.y = y;
-        }
-    }
-
-    static class XYV extends XY {
-        final int value;
-        RGB rgb;
-
-        public XYV(int x, int y, int value) {
-            super(x, y);
             this.value = value;
         }
+
         public XYV(int x, int y, int value, RGB rgb) {
             this(x, y, value);
             this.rgb = rgb;
+        }
+
+        public boolean isSimilar(XYV firstValueRight) {
+            return beetween(precise*-1, precise, this.rgb.r - firstValueRight.rgb.r)
+                    && beetween(precise*-1, precise, this.rgb.g - firstValueRight.rgb.g)
+                    && beetween(precise*-1, precise, this.rgb.b - firstValueRight.rgb.b);
+        }
+
+        private boolean beetween(int left, int right, int value) {
+            return value >= left && value <= right;
         }
 
     }

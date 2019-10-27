@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
-#java -jar client/target/mouse-client.jar exit
-
-java -Djava.util.logging.config.file=server/src/main/resources/logging.properties -Dapple.awt.UIElement=true -jar server/target/mouse-server.jar
-
-#java -jar server/target/mouse-server.jar
-
+#kill -9 `cat mouse-server.pid`
+rm mouse-server.pid
+java -Dport=6666 -Dresources=./ -classpath release/latest/opencv-412.jar:release/latest/mouse-server.jar Application &
+echo $! >>mouse-server.pid
+java -Dport=6667 -Dresources=./ -classpath release/latest/opencv-412.jar:release/latest/mouse-server.jar Application &
+echo $! >>mouse-server.pid
+java -Dport=6668 -Dresources=./ -classpath release/latest/opencv-412.jar:release/latest/mouse-server.jar Application &
+echo $! >>mouse-server.pid
+java -Dport=6669 -Dresources=./ -classpath release/latest/opencv-412.jar:release/latest/mouse-server.jar Application &
+echo $! >>mouse-server.pid

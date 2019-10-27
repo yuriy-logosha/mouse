@@ -3,92 +3,126 @@ package com.home.mouse.server.processors;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opencv.core.Core;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.PriorityQueue;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 
 public class ImageProcessorTest {
 
-    private BufferedImage pic1;
-    private BufferedImage pic2;
-    private BufferedImage pic3;
-    private BufferedImage pic4;
-    private BufferedImage pic5;
-    private BufferedImage pic6;
-    private BufferedImage pic7;
-    private BufferedImage pic0;
-    private BufferedImage pic8;
-    private BufferedImage pic9;
+    private final BufferedImage pic0 = openFile("00.png");
+    private final BufferedImage pic1 = openFile("big-picture.png");
+    private final BufferedImage pic2 = openFile("sub-picture.png");
+    private final BufferedImage pic3 = openFile("sub-picture3.png");
+    private final BufferedImage pic4 = openFile("1.png");
+    private final BufferedImage pic5 = openFile("1_tr.png");
+    private final BufferedImage pic6 = openFile("_all.png");
+    private final BufferedImage pic7 = openFile("_all2.png");
+    private final BufferedImage pic8 = openFile("etalon.png");
+    private final BufferedImage pic9 = openFile("zadaniya-refresh7.png");
+    private final BufferedImage pic10 = openFile("screen-zadanija-get");
+    private final BufferedImage pic11 = openFile("zadanije-start");
+    private final BufferedImage pic12 = openFile("zadanija-get");
+
+    public ImageProcessorTest() throws IOException {
+        System.setProperty("resources", "../resources/");
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
+    }
 
     @Before
     public void setUp() throws Exception {
-        pic0 = openFile("00.png");
-        pic1 = openFile("big-picture.png");
-        pic2 = openFile("sub-picture.png");
-        pic3 = openFile("sub-picture3.png");
-        pic4 = openFile("1.png");
-        pic5 = openFile("1_tr.png");
-        pic6 = openFile("_all.png");
-        pic7 = openFile("_all2.png");
-        pic8 = openFile("etalon.png");
-        pic9 = openFile("zadaniya-refresh7.png");
         //ImageProcessor.printImageRGB(pic0);
         //ImageProcessor.printImage(pic0);
-
     }
 
     @Test
     public void containsTest() {
         ImageProcessor processor = new ImageProcessor();
-        Point result = processor.contains(pic1, pic2);
+        org.opencv.core.Point result = processor.containsEx(pic1, pic2);
         assertNotNull(result);
-        assertEquals(1286, result.getX(), 0);
-        assertEquals(490, result.getY(), 0);
+        assertEquals(1286, result.x, 0);
+        assertEquals(490, result.y, 0);
     }
 
     @Test
-    public void containsTestOnSmallPictures() {
+    public void containsOldTest() throws IOException {
         ImageProcessor processor = new ImageProcessor();
-        Point result = processor.contains(pic4, pic5);
+//        org.opencv.core.Point result = processor.contains(openFile("screen-zadanija-get"), openFile("zadanije-start"));
+//        long start = System.currentTimeMillis();
+
+        org.opencv.core.Point result = processor.containsEx(pic10, pic11);
+//        long end = System.currentTimeMillis() - start;
+//        System.out.println(end);
         assertNotNull(result);
-        assertEquals(2, result.getX(), 0);
-        assertEquals(0, result.getY(), 0);
+//        assertEquals(1286, result.x, 0);
+//        assertEquals(490, result.y, 0);
     }
 
     @Test
-    public void containsTestTransparency() {
+    public void containsOld2Test() throws IOException {
         ImageProcessor processor = new ImageProcessor();
-        Point result = processor.contains(pic6, pic5);
+        org.opencv.core.Point result = processor.containsEx(pic10, "zadanije-start.png");
         assertNotNull(result);
-        assertEquals(465, result.getX(), 0);
-        assertEquals(465, result.getY(), 0);
+        assertEquals(610.0, result.x, 0);
+        assertEquals(766.0, result.y, 0);
+    }
+
+
+
+    @Ignore
+    @Test
+    public void containsTestOnSmallPictures() throws IOException {
+        ImageProcessor processor = new ImageProcessor();
+        org.opencv.core.Point result = processor.containsEx(pic4, "1_tr.png");
+        assertNotNull(result);
+        assertEquals(2, result.x, 0);
+        assertEquals(0, result.y, 0);
+    }
+
+    @Ignore
+    @Test
+    public void containsTestTransparency() throws IOException {
+        ImageProcessor processor = new ImageProcessor();
+        org.opencv.core.Point result = processor.containsEx(pic6, "1_tr.png");
+        assertNotNull(result);
+        assertEquals(465, result.x, 0);
+        assertEquals(465, result.y, 0);
     }
 
     @Test
-    public void containsTestTransparencyZero() {
+    public void containsTestTransparencyZero() throws IOException {
         ImageProcessor processor = new ImageProcessor();
-        Point result = processor.contains(pic7, pic0);
+        org.opencv.core.Point result = processor.containsEx(pic7, pic0);
         assertNotNull(result);
-        assertEquals(350, result.getX(), 0);
-        assertEquals(465, result.getY(), 0);
+        assertEquals(350, result.x, 0);
+        assertEquals(465, result.y, 0);
     }
 
     @Test
     public void containsExTest() throws IOException {
         ImageProcessor processor = new ImageProcessor();
-        Point result = processor.containsEx(pic8, pic9);
+        org.opencv.core.Point result = processor.containsEx(pic8, pic9);
         assertNotNull(result);
-        assertEquals(5, result.getX(), 0);
-        assertEquals(2, result.getY(), 0);
+        assertEquals(2, result.x, 0);
+        assertEquals(5, result.y, 0);
     }
+
+    @Test
+    public void containsImgVsImg() throws IOException {
+        ImageProcessor processor = new ImageProcessor();
+        org.opencv.core.Point result = processor.containsEx(pic1, pic2);
+        assertNotNull(result);
+        assertEquals(1286.0, result.x, 0);
+        assertEquals(490.0, result.y, 0);
+    }
+
 
     @Test
     @Ignore
@@ -98,7 +132,7 @@ public class ImageProcessorTest {
         int cases = 10;
         for (int i = 0; i < cases; i++) {
             Instant start = Instant.now();
-            Point point = processor.contains(pic1, pic3);
+            org.opencv.core.Point point = processor.containsEx(pic1, pic3);
             Duration between = Duration.between(start, Instant.now());
             result += between.toMillis();
             assertNotNull(point);
@@ -115,7 +149,7 @@ public class ImageProcessorTest {
         int cases = 10;
         for (int i = 0; i < cases; i++) {
             Instant start = Instant.now();
-            Point point = processor.containsEx(pic8, pic9);
+            org.opencv.core.Point point = processor.containsEx(pic8, pic9);
             Duration between = Duration.between(start, Instant.now());
             result += between.toMillis();
             assertNotNull(point);
@@ -127,13 +161,22 @@ public class ImageProcessorTest {
     @Test
     @Ignore
     public void printImage() throws IOException {
-        ImageProcessor.printImageRGB(pic7);
-        ImageProcessor.printImageRGB(pic0);
+        ImageProcessor.printImageRGB(pic10, 610, 765);
+        ImageProcessor.printImageRGB(pic12Team co-located in several locations, 0, 0);
     }
 
 
     private BufferedImage openFile(String fileName) throws IOException {
-        return ImageIO.read(getClass().getClassLoader().getResourceAsStream(fileName));
+        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(fileName);
+        if (resourceAsStream != null) {
+            return ImageIO.read(resourceAsStream);
+        }
+        resourceAsStream = getClass().getClassLoader().getResourceAsStream(fileName+".png");
+        if (resourceAsStream != null) {
+            return ImageIO.read(resourceAsStream);
+        }
+
+        return null;
     }
 
 }

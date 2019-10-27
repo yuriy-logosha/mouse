@@ -11,13 +11,12 @@
         <module>server</module>
         <module>client</module>
         <module>performance-test</module>
-        <module>comparator</module>
     </modules>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>RELEASE</version>
+            <version>4.12</version>
         </dependency>
     </dependencies>
 

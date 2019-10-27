@@ -5,18 +5,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opencv.core.Core;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class CommandProcessorTest {
+public class CommandsProcessorTest {
 
     private MouseController mc;
     private Robot robor;
@@ -25,10 +24,11 @@ public class CommandProcessorTest {
 
     @Before
     public void setUp() throws AWTException {
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
         robor = new Robot();
-        mc = new MouseController(robor);
+        mc = new MouseController(robor, 6666);
         ip = mock(ImageProcessor.class);
-        when(ip.contains(any(BufferedImage.class), any(BufferedImage.class))).thenReturn(null);
+        when(ip.containsEx(any(BufferedImage.class), any(BufferedImage.class))).thenReturn(null);
         cp = new CommandProcessor(mc, ip);
     }
 
@@ -67,19 +67,19 @@ public class CommandProcessorTest {
     @Test
     public void testContainsAllException () throws IOException, AWTException {
         ImageProcessor ip = mock(ImageProcessor.class);
-        when(ip.contains(any(BufferedImage.class), any(BufferedImage.class))).thenReturn(null);
-        when(ip.contains(any(BufferedImage.class), any(BufferedImage[].class))).thenCallRealMethod();
+        when(ip.containsEx(any(BufferedImage.class), any(BufferedImage.class))).thenReturn(null);
+        when(ip.contains(any(BufferedImage.class), any(String[].class))).thenCallRealMethod();
 
         CommandProcessor cp = new CommandProcessor(mc, ip);
 
         String result = cp.process("containsAll src/test/resources/sub-picture.png src/test/resources/sub-picture2.png  src/test/resources/sub-picture3.png");
         Assert.assertTrue(result.equals("Not found"));
-        verify(ip, times(1)).contains(any(BufferedImage.class), any(BufferedImage[].class));
-        verify(ip, times(3)).contains(any(BufferedImage.class), any(BufferedImage.class));
+        verify(ip, times(1)).contains(any(BufferedImage.class), any(String[].class));
+        verify(ip, times(3)).containsEx(any(BufferedImage.class), any(String.class));
     }
 
     private static BufferedImage getResource(String name) throws IOException {
-        return ImageIO.read(CommandProcessorTest.class.getClassLoader().getResourceAsStream(name));
+        return ImageIO.read(CommandsProcessorTest.class.getClassLoader().getResourceAsStream(name));
     }
 
 }
